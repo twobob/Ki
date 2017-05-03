@@ -1,0 +1,168 @@
+{
+    "questions": [
+        {
+            "img": {
+                "filename": "IMG_1.JPG"
+            },
+            "question": {
+                "content": {
+                    "baby": "0.8874",
+                    "child": "0.9971",
+                    "cute": "0.9632",
+                    "joy": "1.0000",
+                    "face": "0.9061",
+                    "family": "0.9277",
+                    "fun": "0.9727",
+                    "girl": "0.9576",
+                    "happiness": "0.9000",
+                    "human": "0.9407",
+                    "little": "0.9686",
+                    "one": "0.9032",
+                    "outdoors": "0.9528",
+                    "people": "0.9650",
+                    "person": "0.9600",
+                    "play": "0.9167",
+                    "portrait": "0.9200",
+                    "smile": "0.9010",
+                    "toddler": "0.9121",
+                    "young": "0.9039",
+                    "youth": "0.8845"
+                }
+            },
+            "thumb": {
+                "filename": "IMG_1.THUMB.JPG"
+            }
+        },
+        {
+            "img": {
+                "filename": "IMG_2.JPG"
+            },
+            "question": {
+                "content": {
+                    "beautiful": "0.9348",
+                    "art": "0.9944",
+                    "cute": "0.9616",
+                    "thing": "1.0000",
+                    "tree": "0.9137",
+                    "fun": "0.9618",
+                    "sun": "0.9635",
+                    "grass": "0.9293",
+                    "happiness": "0.9517",
+                    "leisure": "0.9244",
+                    "little": "0.9368",
+                    "nature": "0.9251",
+                    "one": "0.9593",
+                    "outdoors": "0.9688",
+                    "park": "0.9662",
+                    "people": "0.9691",
+                    "portrait": "0.9578",
+                    "smile": "0.9369",
+                    "summer": "0.9400",
+                    "toddler": "0.9220",
+                    "youth": "0.9362"
+                }
+            },
+            "thumb": {
+                "filename": "IMG_2.THUMB.JPG"
+            }
+        }, {
+            "img": {
+                "filename": "IMG_3.JPG"
+            },
+            "question": {
+                "content": {
+                    "beautiful": "0.9348",
+                    "art": "0.9944",
+                    "nature": "0.9616",
+                    "flora": "1.0000",
+                    "face": "0.9137",
+                    "fun": "0.9618",
+                    "floral": "0.9635",
+                    "grass": "0.9293",
+                    "happiness": "0.9517",
+                    "leisure": "0.9244",
+                    "little": "0.9368",
+                    "nature": "0.9251",
+                    "one": "0.9593",
+                    "outdoors": "0.9688",
+                    "park": "0.9662",
+                    "fresh": "0.9691",
+                    "no person": "0.9578",
+                    "smile": "0.9369",
+                    "summer": "0.9400",
+                    "toddler": "0.9220",
+                    "youth": "0.9362"
+                }
+            },
+            "thumb": {
+                "filename": "IMG_3.THUMB.JPG"
+            }
+        },
+		 {
+            "img": {
+                "filename": "IMG_4.JPG"
+            },
+            "question": {
+                "content": {
+                    "beautiful": "0.9348",
+                    "art": "0.9944",
+                    "cute": "0.9616",
+                    "thing": "1.0000",
+                    "face": "0.9137",
+                    "fun": "0.9618",
+                    "green": "0.9635",
+                    "grass": "0.9293",
+                    "happiness": "0.9517",
+                    "leisure": "0.9244",
+                    "little": "0.9368",
+                    "nature": "0.9251",
+                    "one": "0.9593",
+                    "outdoors": "0.9688",
+                    "park": "0.9662",
+                    "people": "0.9691",
+                    "portrait": "0.9578",
+                    "smile": "0.9369",
+                    "summer": "0.9400",
+                    "toddler": "0.9220",
+                    "youth": "0.9362"
+                }
+            },
+            "thumb": {
+                "filename": "IMG_4.THUMB.JPG"
+            }
+        },
+		 {
+            "img": {
+                "filename": "IMG_5.JPG"
+            },
+            "question": {
+                "content": {
+                    "beautiful": "0.9348",
+                    "art": "0.9944",
+                    "cute": "0.9616",
+                    "thing": "1.0000",
+                    "face": "0.9137",
+                    "fun": "0.9618",
+                    "sunny": "0.9635",
+                    "grass": "0.9293",
+                    "happiness": "0.9517",
+                    "leisure": "0.9244",
+                    "little": "0.9368",
+                    "nature": "0.9251",
+                    "one": "0.9593",
+                    "outdoors": "0.9688",
+                    "park": "0.9662",
+                    "people": "0.9691",
+                    "portrait": "0.9578",
+                    "smile": "0.9369",
+                    "summer": "0.9400",
+                    "toddler": "0.9220",
+                    "youth": "0.9362"
+                }
+            },
+            "thumb": {
+                "filename": "IMG_5.THUMB.JPG"
+            }
+        }
+    ]
+}

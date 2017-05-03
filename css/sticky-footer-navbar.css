@@ -1,0 +1,99 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #F0EDE3;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body > .container {
+  padding: 90px 15px 0;
+}
+.container .text-muted {
+  margin: 0px 0;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+code {
+  font-size: 80%;
+}
+
+.resizable_img {
+    position: relative; /* needed for z-index to work */
+    /* width: 240px; */
+   /* height: auto;  will resize image proportionally */
+	border-radius: 10px 10px 10px 10px;
+-moz-border-radius: 10px 10px 10px 10px;
+-webkit-border-radius: 10px 10px 10px 10px;
+border: 5px solid #e4e4e4
+}
+
+.elevate:hover{
+	/* margin-top:-87px; */
+	/* margin-left:-230px; */
+	/* width:720px !important; */
+	
+}
+
+.resizable_img:hover {
+    /* width: 480px; */
+   /* z-index: 2;  place image on top */
+	border-radius: 10px 10px 10px 10px;
+-moz-border-radius: 10px 10px 10px 10px;
+-webkit-border-radius: 10px 10px 10px 10px;
+border: 5px solid #ffb803;
+/* float:none !important; */
+
+}
+
+.img_container {
+    /* width: 400px; */
+    /* position: relative; */
+    overflow: visible; /* stops images being shifted  */
+    float:none;
+}
+
+#loading {width: 100%;height: 100%;top: 0px;left: 0px;position: fixed;display: block; z-index: 99}
+
+#loading-image {position: absolute;top: 40%;left: 45%;z-index: 100} 
+
+
+
+@keyframes blink {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@-webkit-keyframes blink {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+blink, .blink,  #blink{
+  animation-name: blink;
+  animation-duration: 3s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  -webkit-animation-name: blink;
+  -webkit-animation-duration: 3s;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-iteration-count: infinite;
+}

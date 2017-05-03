@@ -1,0 +1,16 @@
+<div>
+  <ul style="margin-left: 0px; margin-right: 0px; padding-left: 0px;">
+    {{#questions}}
+      <li data-question-id="{{id}}">
+        <h2 style="padding-bottom: 10px;"  ><a href="#">{{title}}</a></h2>
+		 <img style="float:left; margin-right: 10px;" class="resizable_img" src="./img/thumbs/{{{thumb}}}"  width="120" height="120" ></img> 
+		 <!-- <img class="lazy" data-original="./img/thumbs/{{{thumb}}}"  width="120" height="120">  -->
+<p style="min-height: 100px;">{{#each tags}}
+    {{{this}}}{{#unless @last}}, {{/unless}}
+{{/each}}</p>  
+
+	   <!-- <p style="min-height: 100px;">{{{tags}}}</p> -->
+      </li>
+    {{/questions}}
+  </ul>
+</div>

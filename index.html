@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Kaycare KI, lightweight full-text image tag search engine.</title>
+    <meta name="description" content="Kaycare KI for searching images" />
+    <meta name="keywords" content="Kaycare KI" />
+    <meta name="author" content="Kaycare" />
+    <meta name="google-site-verification" content="wibble-wobble" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/sticky-footer-navbar.css">
+    <link rel="stylesheet" href="./css/styles.css">
+
+</head>
+
+<body id="body">
+
+    <div id="wrapper">
+        <main class="main" role="main" style="margin-top: 0px">
+            <div class="container">
+                <div class="row">
+                    <header style="margin-left: 15px; margin-right: 15px;">
+                        <h1 id="hiding_title">Kaycare<span>KI</span></h1>
+                    </header>
+
+                </div>
+  <div class="row" id="loader" style="margin-left: 0px; margin-right: 0px; border-top-style: solid; border-top-width: 0px; padding-top: 0px;"><blink color="RED">LOADING THOUSANDS OF IMAGES, please be patient</blink></div>
+
+
+                <div class="row" style="margin-left: 0px; margin-right: 0px;">
+                    <div class="col-md-6" style="margin-left: 0px; margin-right: 0px;">
+<div style="margin-left: 0px; margin-right: 0px; position: fixed; width: 480px;">
+<form>
+                            <div class="form-group has-success">
+                                <div class="col-xs-9" style="padding-left: 0px;">
+                                    <input onclick="emptyFunction()" type="search" style="width: 100%;" class="form-control" id="inputSuccess1" placeholder="search kaycare image database">
+                                </div>
+                            </div>
+                            <div style="text-align: right; width: 480px; padding-top: 8px; " id="clearButton"></div>
+                        </form></div>        
+
+		<div id='question-view-container' style="margin-left: 0px; margin-right: 0px; position: fixed; width: 440px; margin-top: 70px; "></div>
+                    </div>
+
+                    <div class="col-md-6" style="margin-left: 0px; margin-right: 0px; padding-right: 0px; padding-left: 0px;">
+                        <div id='question-list-container' style="margin-left: 0px; margin-right: 0px; padding-right: 0px; padding-left: 0px; margin-top: 12px;"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- end of wrapper -->
+
+        <!-- Begin footer -->
+        <footer class="footer vertical-center">
+            <div class="container">
+                <p class="pull-right text-muted"><a href="#">Back to top</a>
+                </p>
+                <p class="text-muted">Copyright &copy; Kaycare 2017</p>
+            </div>
+        </footer>
+
+ <!-- <textarea class="codehere" id="codehere" />  -->
+    <!-- <script src="assets/bootstrap/js/bootstrap.min.js"></script> -->
+	<!-- <script src="assets/bootstrap/js/jquery-2.1.4.js"></script>  -->
+    <script data-main="./app.js" async="true" src="./require.js"></script>
+</body>
+</html>
