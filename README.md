@@ -1,11 +1,13 @@
 # Ki
-[An example implementation of this](https://ibin.co/w800/3LDwKlGSsulY.png "Screenshot of example implementation")
+
+![SCREENSHOT](https://ibin.co/w800/3LDwKlGSsulY.png "Screenshot of example implementation")
+
+__Use python and other free bits to create the files required to make an Elasticlunr.js searchable image tag website__
 
 This repos is a slightly modified example of Elasticlunr.js to demonstrate the a usage for the Clarifai API
-
 it should "just work" to give you a working thing to throw at a webserver
 
-The additional utilty scripts below should give you enough info to populate the model with stuff (thumbs that are logically linked to the data.JSON) of your own. 
+The additional utilty scripts below should give you enough info to populate the model with stuff (thumbs that are logically linked to the data.JSON) of your own.  
 
 The scripts assume windows since the unixers out there can probably bash up their own in short order.
 
