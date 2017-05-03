@@ -4,17 +4,18 @@
 
 __Use python and other free bits to create the files required to make an Elasticlunr.js searchable image tag website__
 
-This repos is a slightly modified example of Elasticlunr.js to demonstrate the a usage for the Clarifai API
+This repository is a slightly modified example of Elasticlunr.js, to demonstrate the usage coupled with the Clarifai API.
 it should "just work" to give you a working thing to throw at a webserver
 
 The additional utilty scripts below should give you enough info to populate the model with stuff (thumbs that are logically linked to the data.JSON) of your own.  
 
-The scripts assume windows since the unixers out there can probably bash up their own in short order.
+### NOTES ON Supporting Documents 
+The scripts assume Windows OS since the unixers out there can probably bash up their own in short order.
 
 We optionally use __ImageMagick__ as __Magick.exe__ and __Jpeg-compress.exe__ command line utilities since they are free and Windows-friendly. Replace with your weapon of choice. You could do this stuff in the old CS2 version of Photoshop with a single batch command.
 Anything really.
 
-Python is used to provide a relatively cross platform overview of the steps needed, please amend directory spearators and paths to something sensible.
+Python is used to provide a relatively cross-platform overview of the steps needed, please amend directory separators and paths to something sensible.
 
 ### TODO/MAYBES: 
 Maybe just roll all the scripts in python examples
@@ -47,9 +48,10 @@ Clarifai's free monthy plan allows for 5000 ops (so you can get it horribly wron
 __unify the txt's to JSON__
 Then create a single unified JSON file from a list of txt files parsing the values
 <https://gist.github.com/twobob/dad0a110b0c2b2eb4895d8e6e5e76760>
-_(You could just store the original claripy 'results' value and walk over that, we preferred this two stage process for greater control of the resulting data blob )_
+_(You could just store the original claripy 'results' value and walk over that, 
+we preferred this two stage process for greater control of the resulting data blob )_
 
-we minified that output eventually, when testing was complete
+we minified that output eventually, when testing was complete.
 
 Next process the images
 use ImageMagick command line on Windows to make source images as unrotated as possible (Caveat emptor, YMMV)
@@ -60,7 +62,8 @@ Now, make thumbs for web purposes and eventual display of the images
 <https://gist.github.com/twobob/f5dd8a25195d730801df25bf048c3272>
 _(We chose 240x240 in the end, it scales nicely to 480, which is plenty for previews, not the 128x128 in the title)_
 
-since this is web facing we are all about size with thousands of files to serve so we crunch the THUMB.JPG files in /thumbs with jpeg-recompress.exe
+Since this is web facing we are all about size with thousands of files to serve,
+so we crunch the THUMB.JPG files in /thumbs with jpeg-recompress.exe
 __cmd one liner__  <https://gist.github.com/twobob/e10bb9163a6fc715be28610be58b5d8b>
 _this gets us pretty decent images for as little as 10-30kb depending on content, you could crush harder.
 our 7GB of images are now about 40Mb_
@@ -70,23 +73,24 @@ our 7GB of images are now about 40Mb_
 They have a fully working example online here that we will modify
 <http://elasticlunr.com/example/index.html>
 
-we rework the index.html to have less clutter and not require so much typing
+Rework the index.html to have less clutter and not require so much typing
 <https://gist.github.com/twobob/85428a92477e7cbd3eb50a6652f27d60>
 
-we adjust the app.js to use handlebars.js over the older mustache.js in the demo - (download the code from a cdn, make it local)
-we add incremental rendering and limited index config to get decent loading times for 2000 results 
+We adjust the app.js to use handlebars.js over the older mustache.js in the demo - (download the code from a cdn, make it local)
+We add incremental rendering and limited index config to get decent loading times for 2000 results 
 <https://gist.github.com/twobob/82e2c9a628e50d5cf81f41a9a44e27f2>
 _(loading 50 thumbs at a time with progress indication)_
 
-Please do consider the file endings CASE SENSITIVITY to .JPG not .jpg  (although pretty sure that is covered in the scripts, J.I.C.)
+Please __DO__ consider the file endings' CASE SENSITIVITY to .JPG not .jpg  
+(although pretty sure that is corner-case covered in the scripts IIRC, J.I.C.)
 
-Hope this helps someone realise the power of AI tagging and tiny lucene, Elastic style search indexing.
+Hope this helps someone realise the power of AI tagging and a tiny Luceney, Elasticsearch style search indexing.
 
 #### LICENSE
 
-I claim no ownership of these and they were cobbled together from public domain code or mangled together by be.
+I claim no ownership of these and they were cobbled together from public domain code or mangled together by me. For my sins.
 Again, I take no credit. My pedagogical employer wanted one of these. There went the bank holiday w/e ;)
 
 I release this under a "do what you want but dont sue me or anyone I know" license.
-Or some other more legal one that is similar. suggestions politey accepted.
+Or some other more legal one that is similar. suggestions politely accepted.
 
