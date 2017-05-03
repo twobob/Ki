@@ -1,6 +1,5 @@
 # Ki
-Inline-style: 
-![An example implementation of this](https://ibin.co/w800/3LDwKlGSsulY.png "Screenshot of example implementation")
+[An example implementation of this](https://ibin.co/w800/3LDwKlGSsulY.png "Screenshot of example implementation")
 
 This repos is a slightly modified example of Elasticlunr.js to demonstrate the a usage for the Clarifai API
 
