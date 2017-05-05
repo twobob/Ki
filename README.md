@@ -18,11 +18,15 @@ Anything really.
 Python is used to provide a relatively cross-platform overview of the steps needed, please amend directory separators and paths to something sensible.  
 
 ### TODO/MAYBES: 
+* FIX THE BROKEN LAYOUT ON SLIM SCREENS
+* app.inputs.bulk_create_images(images)  rather than loop over a single call.
 * Maybe just roll all the scripts in python examples
 * Import the scripts, after a tidy up, to the repo in the interim
 * Add a script that searches network drives and looks in areas that phones are likely to sync to.
 * Maybe centralise the JSON and offer a "single JSON Blob" switch for claripy.py reducing .txt file clutter
 * Do some corner case testing, yeah, some testing at all really...
+* update model in claripy.py to  `... for p in pictures[:step_size]] ,     model='general-v1.3')`
+* Update this repo to the latest 2 column layout with all the fixes
 
 ## Supporting Documents and scripts
 
