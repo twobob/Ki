@@ -19,6 +19,7 @@ Python is used to provide a relatively cross-platform overview of the steps need
 
 ### TODO/MAYBES: 
 * FIX THE BROKEN LAYOUT ON SLIM SCREENS
+* Make the partial rendering loop stop when you click a result before it is finished
 * app.inputs.bulk_create_images(images)  rather than loop over a single call.
 * Maybe just roll all the scripts in python examples
 * Import the scripts, after a tidy up, to the repo in the interim
