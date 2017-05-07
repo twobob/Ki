@@ -1,7 +1,7 @@
 # Ki
 
 
-![SCREENSHOT](https://ibin.co/3LbCqFEoS3Wy.jpg "Screenshot of example implementation")
+![SCREENSHOT](https://raw.githubusercontent.com/twobob/Ki/master/2ColumnScreenshot.JPG "Screenshot of example implementation")
 
 __Use python and other free bits to create the files required to make an Elasticlunr.js searchable image tag website__
 
