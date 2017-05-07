@@ -1,6 +1,7 @@
 # Ki
 
-![SCREENSHOT](https://ibin.co/w800/3LDwKlGSsulY.png "Screenshot of example implementation")
+
+![SCREENSHOT](https://ibin.co/3LbCqFEoS3Wy.jpg "Screenshot of example implementation")
 
 __Use python and other free bits to create the files required to make an Elasticlunr.js searchable image tag website__
 
@@ -18,18 +19,18 @@ Anything really.
 Python is used to provide a relatively cross-platform overview of the steps needed, please amend directory separators and paths to something sensible.  
 
 ### TODO/MAYBES: 
-* FIX THE BROKEN LAYOUT ON SLIM SCREENS
+* ~~FIX THE BROKEN LAYOUT ON SLIM SCREENS~~ Done
 * Make the partial rendering loop stop when you click a result before it is finished
 * Add transactional folders such as IN - PROCESSED - ERROR to allow for more efficent addition of new content
 * Check the EXIF/File attrs for Time Created and use that to compare against a stored "last sync" date for previous point
-* app.inputs.bulk_create_images(images)  rather than loop over a single call.
+* ~~app.inputs.bulk_create_images(images)  rather than loop over a single call.~~ If we implement training. maybe.
 * Maybe just roll all the scripts in python examples
 * Import the scripts, after a tidy up, to the repo in the interim
 * Add a script that searches network drives and looks in areas that phones are likely to sync to.
 * Maybe centralise the JSON and offer a "single JSON Blob" switch for claripy.py reducing .txt file clutter
 * Do some corner case testing, yeah, some testing at all really...
-* update model in claripy.py to  `... for p in pictures[:step_size]] ,     model='general-v1.3')`
-* Update this repo to the latest 2 column layout with all the fixes
+* ~~update model in claripy.py to  `... for p in pictures[:step_size]] ,     model='general-v1.3')`~~ Done
+* ~~Update this repo to the latest 2 column layout with all the fixes~~ Done
 
 ## Supporting Documents and scripts
 
