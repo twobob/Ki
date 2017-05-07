@@ -1,7 +1,7 @@
 <div>
   <ul style="margin-left: 0px; margin-right: 0px; padding-left: 0px;">
     {{#list}}
-		 <a style="cursor:pointer" onclick="searchTerm('{{{x}}}')" class="listThing" >{{{x}}}</a>, 
+		 <a style="cursor:pointer" title="{{{count}}} results for {{{x}}}" onclick="searchTerm('{{{x}}}')" class="listThing" >{{{x}}}</a>, 
     {{/list}}
   </ul>
 </div>

@@ -1,4 +1,4 @@
-//requirejs.config({waitSeconds:0});
+requirejs.config({waitSeconds:0});
 require([
   './jquery.js',
   './handlebars.min.js',
@@ -9,39 +9,41 @@ require([
   'text!data.json'
 ], function (_, Mustache, elasticlunr, questionView, questionList, wordList, data, indexDump) {
 
+//,  'text!example_index.json',   'text!example_data.json', 
+
 var WLtemplate = Mustache.compile(wordList);
 var QLtemplate = Mustache.compile(questionList);
 var QVtemplate = Mustache.compile(questionView);
 	
-var seeder = 999999;
+var seeder = 11091974;
 
 var BodyRef = document.getElementById("body");
 var clearButton =   $('#clearButton');
 
-
   var renderQuestionList = function (qs) {
     $("#question-list-container")
       .empty()
-	  .append(QLtemplate({questions: qs}))
+	  .append(QLtemplate({questions: qs}));
   }
  
     var renderWordList = function (qs) {
+
     $("#question-list-container")
       .empty()
-	  .append(WLtemplate({list: qs}))
+	  .append(PRERENDERED_LIST_HTML);
   }
 
   var renderQuestionView = function (question) {
     $("#question-view-container")
       .empty()
-      .append(QVtemplate(question))
+      .append(QVtemplate(question));
   
   }
-  
+
   window.profile = function (term) {
-    console.profile('search')
-    window.idx.search(term)
-    console.profileEnd('search')
+    console.profile('search');
+    window.idx.search(term);
+    console.profileEnd('search');
   }
 
   window.search = function (term) {
@@ -59,23 +61,69 @@ var clearButton =   $('#clearButton');
 	this.saveDocument(false);
 });
  
- var fulllist = new Array();
+ Mustache.registerHelper('everyOther', function (index, options) {
+   if(index%2 == 0){
+            return options.fn(this);
+       } else {
+            return options.inverse(this);
+         }
  
-  var questions = JSON.parse(data).questions.map(function (raw) {
-	    var holder = ""	  
+});
+ 
+  // Modified to 
+  Array.prototype.byCount= function(){
+	//var lenHolder = [];
+    var itm, a= [], L= this.length, o= {};
+    for(var i= 0; i<L; i++){
+        itm= this[i];
+        if(!itm) continue;
+        if(o[itm]== undefined) o[itm]= 1;
+        else ++o[itm];
+    }
+	countHolder = []; 
+    for(var p in o) {a[a.length]= p; 	
+	countHolder[countHolder.length] = { name: a.slice(-1).toString() , amount: o[p]};
+	}
+	var returnWithCounts = 
+	a.sort(function(a, b){
+        return o[b]-o[a];
+    })
+	countHolder.sort(function(a, b){
+        return a.amount >b.amount;
+    })
+    return returnWithCounts };
+ 
+ // prep the questions
+ var fulllist = [];
+ var rawQuestions = JSON.parse(data).questions;
+ 
+ rawQuestions.map(function (raw) {
+ for (thing in raw.question.content )
+	{
+	fulllist[fulllist.length]= thing; //{'x': thing};
+	}
+})
+  
+ var shortlist = fulllist.byCount();
+	dict = {}
+	countHolder.forEach(function(x) {
+    dict[x.name] = x.amount
+	})
+ 
+ 
+  var questions = rawQuestions.map(function (raw) {
+	  rawQuestion = raw;
+	  
+	  var holder = ""	  
 	  for (i in raw.question.content){
 		 holder +=i +' : '+ raw.question.content[i]+'\n';
 		}
 	var make_id =   murmurhash3_32_gc(raw.img.filename, seeder); 
+	//console.log(make_id);
 
-	for (thing in raw.question.content )
-	{
-	fulllist[fulllist.length]= thing; //{'x': thing};
-	}
-	
 	var clickableTags = Object.keys(raw.question.content).map(function (k) {
 		
-		var result = '<a style="cursor:pointer" onclick="searchTerm(\''+k+'\')">'+k+'</a>';	
+		var result = '<a title="'+dict[k]+' results for '+k+  '" style="cursor:pointer" onclick="searchTerm(\''+k+'\')">'+k+'</a>';	
 		
 		return result;
 	})
@@ -87,7 +135,7 @@ var clearButton =   $('#clearButton');
       title:  raw.img.filename.replace('.JPG',''),
       body: holder,
 	  searchTerms: Object.keys(raw.question.content).join(' '),
-      tags:  clickableTags, 
+      tags:  clickableTags, // Object.keys(raw.question.content).join(' '),
 	  img: raw.img.filename,
 	  thumb: raw.thumb.filename
     }
@@ -107,17 +155,14 @@ window.idx = idx;
 document.getElementById("loader").style.display = "none" ;
 document.getElementById("hiding_title").style.display = "none" ;
 
- 
-  // this is how one might expose the complete engine for saving in a NON Node.js scenario.
-  // var code = JSON.stringify(idx);
-  // $('#codehere').text(code);	
-  
   renderQuestionView(questions[0])
- 
+
   
-var shortlist = fulllist.filter((v, i, a) => a.indexOf(v) === i).map(function (raw) {
-		return { x : raw }
-	}); 
+
+shortlist = countHolder.map(function (raw) { return { x : raw.name, count: raw.amount }	}); 
+
+var PRERENDERED_LIST_HTML = WLtemplate({list: shortlist});
+
 
 	 var emptyFunction = function emptyMe (){
 	  
@@ -152,23 +197,27 @@ window.emptyFunction = emptyFunction;
   
   function doHeavyWork(results, start, totalResultsToRender, term) {
     var total = totalResultsToRender;
-    var fragment = 50;
+    var fragment = 20;
     var end = start + fragment;
     var left = totalResultsToRender - end ;
   
+  
+ // console.log( left + ' results of '+  totalResultsToRender +' total left to render');
 
    // partially render list
    // the thing to render, the start record and the end record
        renderPartialQuestionList(results, end-fragment, end)
-       clearButton.text(end+fragment +' of '+results.length+' for '+term);
+       clearButton.text(end +' of '+results.length+' for '+term);
     
+	//clearButton.addClass('blink');
 	
     if (end >= total) {
 		
         // If we reached the end, stop and change status
 		clearButton.removeClass('blink');
        clearButton.text(results.length+' for '+term);
-		BodyRef.style.cursor = '';
+		$('body').removeClass('custom');
+		//BodyRef.style.cursor = '';
 		
     } else {
         // Otherwise, process next fragment
@@ -180,10 +229,10 @@ window.emptyFunction = emptyFunction;
 
 function dowork(results, totalResultsToRender, term) {
     // Set "working" status
-	document.body.style.cursor = "wait";
+	
     document.getElementById("clearButton").innerHTML = "working";
 	// render the single view and set term in search bar
-
+    $('body').addClass('custom');   //document.body.style.cursor = "progress";
 	renderQuestionView(results[0]);
 	
     // render big view in chunks

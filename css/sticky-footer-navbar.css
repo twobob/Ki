@@ -97,3 +97,16 @@ blink, .blink,  #blink{
   -webkit-animation-timing-function: ease-in-out;
   -webkit-animation-iteration-count: infinite;
 }
+
+body.custom, body.custom.a, body.custom input{ cursor: wait; }
+
+	
+/* a {text-shadow: 0.0em 0.0em 0.2em white, 0.0em 0.0em 0.1em white;	} */
+
+@media screen and (max-width: 1130px) {
+    .qvcontainer {        margin-top: -50px !important ;    }
+	
+	.fixed{position: relative !important};
+}
+
+
