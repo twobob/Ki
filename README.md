@@ -85,7 +85,17 @@ _(loading 50 thumbs at a time with progress indication)_
 Please __DO__ consider the file endings' CASE SENSITIVITY to .JPG not .jpg  
 (although pretty sure that is corner-case covered in the scripts IIRC, J.I.C.)  
 
-Hope this helps someone realise the power of AI tagging and a tiny Luceney, Elasticsearch style search indexing.  
+Hope this helps someone realise the power of AI tagging and a tiny Luceney, Elasticsearch style search indexing.
+
+### Running the site locally
+
+The generated HTML files can be served with Python's built-in web server.
+From the repository folder run one of the following commands:
+
+ - **Linux:** `python3 serve.py`
+ - **Windows:** `python serve.py`
+
+This will host the site at <http://localhost:8000>.
 
 #### LICENSE
 
