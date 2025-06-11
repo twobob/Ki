@@ -5,8 +5,8 @@
 
 __Use python and other free bits to create the files required to make an Elasticlunr.js searchable image tag website__
 
-This repository is a slightly modified example of Elasticlunr.js, to demonstrate the usage coupled with the Clarifai API.
-it should "just work" to give you a working thing to throw at a webserver.  
+This repository is a slightly modified example of Elasticlunr.js. It uses a fully local BLIP‑2 captioning approach to tag images.
+It should "just work" to give you a working thing to throw at a webserver.
 
 The additional utilty scripts below should give you enough info to populate the model with stuff (thumbs that are logically linked to the data.JSON) of your own.  
 
@@ -27,9 +27,8 @@ Python is used to provide a relatively cross-platform overview of the steps need
 * Maybe just roll all the scripts in python examples
 * Import the scripts, after a tidy up, to the repo in the interim
 * Add a script that searches network drives and looks in areas that phones are likely to sync to.
-* Maybe centralise the JSON and offer a "single JSON Blob" switch for claripy.py reducing .txt file clutter
+* Maybe centralise the JSON and offer a "single JSON Blob" option to reduce .txt file clutter
 * Do some corner case testing, yeah, some testing at all really...
-* ~~update model in claripy.py to  `... for p in pictures[:step_size]] ,     model='general-v1.3')`~~ Done
 * ~~Update this repo to the latest 2 column layout with all the fixes~~ Done
 
 ## Supporting Documents and scripts
@@ -37,27 +36,20 @@ Python is used to provide a relatively cross-platform overview of the steps need
 Here is a short sequence of reasonably accurate (and hastily slapped together) scripts to create a text driven image search engine.
 Time taken so far is only a few hours of actual coding and testing.  
 
-__claripy.py__
-walk over JPG files and create human readable output of the tagging values in one .txt file for each image via the Clarifai API using Python on Windows.  
+__offline_tags.py__
+Walk over JPG files and create single-word tag files using the open-source BLIP‑2 model and spaCy.
+Runs entirely offline with no external dependencies.
 
-<https://gist.github.com/twobob/241511cea52e19da42ce99c5934f9d04>
-_(You could of course store the json, we wanted something legible in this stage)_  
+`python offline_tags.py PATH_TO_IMAGES`
 
-__looping the claripy__
-I batched 100 images by running ten loops at a time using
-<https://gist.github.com/twobob/03a6a00f757b0ff8733b10e822b4e8cc>
-
-`for /L %a in (1,1,10) do (python.exe claripy.py && timeout 5 >nul)`
-
-_With 10 images in the claripy.py document, you could do the 32 recommended images if you preferred.
-This way gave nice, regular visually parsable output on the command line,  We processed circa 2000 images.
-Clarifai's free monthy plan allows for 5000 ops (so you can get it horribly wrong once with 2k, lol)_  
+__processing batches__
+You can run `offline_tags.py` over large folders or in batches as needed. Each image
+produces a `.txt` file containing the extracted tags.
 
 __unify the txt's to JSON__
-Then create a single unified JSON file from a list of txt files parsing the values
+Then create a single unified JSON file from the generated `.txt` tag files
 <https://gist.github.com/twobob/dad0a110b0c2b2eb4895d8e6e5e76760>
-_(You could just store the original claripy 'results' value and walk over that, 
-we preferred this two stage process for greater control of the resulting data blob )_  
+_(You could also store the raw caption results if you prefer; this two-stage process keeps the data blob tidy.)_
 
 we minified that output eventually, when testing was complete.
 
@@ -85,9 +77,10 @@ Rework the index.html to have less clutter and not require so much typing
 <https://gist.github.com/twobob/85428a92477e7cbd3eb50a6652f27d60>  
 
 We adjust the app.js to use handlebars.js over the older mustache.js in the demo - (download the code from a cdn, make it local)
-We add incremental rendering and limited index config to get decent loading times for 2000 results 
+We add incremental rendering and limited index config to get decent loading times for 2000 results
+The word list view now updates dynamically since `renderWordList` uses its parameter.
 <https://gist.github.com/twobob/82e2c9a628e50d5cf81f41a9a44e27f2>
-_(loading 50 thumbs at a time with progress indication)_  
+_(loading 50 thumbs at a time with progress indication)_
 
 Please __DO__ consider the file endings' CASE SENSITIVITY to .JPG not .jpg  
 (although pretty sure that is corner-case covered in the scripts IIRC, J.I.C.)  
