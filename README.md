@@ -77,9 +77,10 @@ Rework the index.html to have less clutter and not require so much typing
 <https://gist.github.com/twobob/85428a92477e7cbd3eb50a6652f27d60>  
 
 We adjust the app.js to use handlebars.js over the older mustache.js in the demo - (download the code from a cdn, make it local)
-We add incremental rendering and limited index config to get decent loading times for 2000 results 
+We add incremental rendering and limited index config to get decent loading times for 2000 results
+The word list view now updates dynamically since `renderWordList` uses its parameter.
 <https://gist.github.com/twobob/82e2c9a628e50d5cf81f41a9a44e27f2>
-_(loading 50 thumbs at a time with progress indication)_  
+_(loading 50 thumbs at a time with progress indication)_
 
 Please __DO__ consider the file endings' CASE SENSITIVITY to .JPG not .jpg  
 (although pretty sure that is corner-case covered in the scripts IIRC, J.I.C.)  

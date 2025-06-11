@@ -30,7 +30,7 @@ var clearButton =   $('#clearButton');
 
     $("#question-list-container")
       .empty()
-	  .append(PRERENDERED_LIST_HTML);
+      .append(WLtemplate({list: qs}));
   }
 
   var renderQuestionView = function (question) {
@@ -161,7 +161,6 @@ document.getElementById("hiding_title").style.display = "none" ;
 
 shortlist = countHolder.map(function (raw) { return { x : raw.name, count: raw.amount }	}); 
 
-var PRERENDERED_LIST_HTML = WLtemplate({list: shortlist});
 
 
 	 var emptyFunction = function emptyMe (){
