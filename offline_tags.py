@@ -120,6 +120,7 @@ def main():
         help=f"Folder containing images. Output will be written to data.json in the script's directory. (default: {help_text_default_folder})",
     )
     parser.add_argument(
+        "-R",
         "--recurse",
         action="store_true",
         help="Recurse into subdirectories when scanning for images.",
