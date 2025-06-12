@@ -25,7 +25,13 @@ def extract_tags(caption, nlp):
     return sorted(tag.upper() for tag in nouns)
 
 
-def process_folder(folder_path_str: str):
+def process_folder(folder_path_str: str, recurse: bool = False):
+    """Process a folder of images and write captions/tags to data.json.
+
+    Args:
+        folder_path_str: Path to the folder of images.
+        recurse: If True, search folders recursively.
+    """
     # Determine the output path for data.json (in the script's directory)
     # Assuming the script is run from its location, __file__ should give its path.
     try:
@@ -47,8 +53,12 @@ def process_folder(folder_path_str: str):
 
     all_questions_data = []  # Initialize list to hold all image data
 
-    image_folder_path = Path(folder_path_str)  # Convert input string to Path
-    image_paths = [p for p in sorted(image_folder_path.iterdir()) if p.is_file() and p.suffix in img_extensions]
+    image_folder_path = Path(folder_path_str)
+    if recurse:
+        iter_paths = image_folder_path.rglob('*')
+    else:
+        iter_paths = image_folder_path.iterdir()
+    image_paths = [p for p in sorted(iter_paths) if p.is_file() and p.suffix in img_extensions]
 
     with tqdm(total=len(image_paths), desc="Captioning Images", unit="image") as pbar:
         for img_path in image_paths:
@@ -109,6 +119,11 @@ def main():
         default=str(default_pictures_folder),
         help=f"Folder containing images. Output will be written to data.json in the script's directory. (default: {help_text_default_folder})",
     )
+    parser.add_argument(
+        "--recurse",
+        action="store_true",
+        help="Recurse into subdirectories when scanning for images.",
+    )
     args = parser.parse_args()
 
     if not Path(args.folder).is_dir():
@@ -119,7 +134,7 @@ def main():
             )
         return
 
-    process_folder(args.folder)
+    process_folder(args.folder, args.recurse)
 
 
 if __name__ == "__main__":

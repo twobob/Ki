@@ -19,10 +19,10 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
 2.  **Process Your Images:**
     Navigate to the repository directory and run the main pipeline script, providing the path to your image folder:
     ```bash
-    python run_pipeline.py PATH_TO_YOUR_IMAGES
+    python run_pipeline.py PATH_TO_YOUR_IMAGES [--recurse]
     ```
     This script will:
-    *   Scan the `PATH_TO_YOUR_IMAGES` directory for JPG, JPEG, and PNG files.
+    *   Scan the `PATH_TO_YOUR_IMAGES` directory for JPG, JPEG, and PNG files. Use `--recurse` to include subfolders.
     *   Generate descriptive tags for each image using a local BLIP-2 model.
     *   Create thumbnails for each image and store them in the `img/thumbs/` directory. An optional watermark from `img/overlay/watermark.png` may be applied if `make_thumbs.py` (called by the pipeline) is configured for it.
     *   Compile all tag information into `data.json`, which is used by the search interface.

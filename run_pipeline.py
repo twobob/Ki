@@ -57,6 +57,7 @@ def main():
     parser.add_argument('--watermark_path', type=str, default=os.path.join('img', 'overlay', 'watermark.png'), help='Path to the watermark image.')
     parser.add_argument('--clear_thumbs', action='store_true', help='Clear the thumbnails directory before generating new thumbnails.')
     parser.add_argument('--thumb_size', type=int, default=128, help='Size of the thumbnails (width and height).')
+    parser.add_argument('--recurse', action='store_true', help='Recurse into subdirectories when processing images.')
 
     args = parser.parse_args()
 
@@ -67,6 +68,7 @@ def main():
     thumbs_dir = args.thumbs_dir
     output_json = args.output_json
     watermark_path = args.watermark_path
+    recurse = args.recurse
 
     # Construct script paths relative to this script's location (project root)
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -81,6 +83,7 @@ def main():
     print(f"  Watermark Path: {watermark_path}")
     print(f"  Clear Thumbnails: {args.clear_thumbs}")
     print(f"  Thumbnail Size: {args.thumb_size}")
+    print(f"  Recurse into subfolders: {recurse}")
     print("-" * 30)
 
     # Prepare arguments for the individual steps
@@ -93,8 +96,12 @@ def main():
     ]
     if args.clear_thumbs:  # Correctly append --clear_thumbs only if True
         make_thumbs_args.append('--clear_thumbs')
+    if recurse:
+        make_thumbs_args.append('--recurse')
 
-    offline_tags_args = [originals_dir]  # Pass only the image source directory
+    offline_tags_args = [originals_dir]
+    if recurse:
+        offline_tags_args.append('--recurse')
 
     print("\nStep 1: Generating thumbnails...")
     if not run_script(make_thumbs_script, make_thumbs_args):
