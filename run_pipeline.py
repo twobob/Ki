@@ -60,10 +60,10 @@ def main():
     parser.add_argument('--originals_dir', type=str, default=str(default_originals_path), 
                         help=f'Directory containing original images. Defaults to OS pictures folder: {default_originals_path}')
     
-    parser.add_argument('--thumbs_dir', type=str, default=os.path.join('img', 'thumbs'), help='Directory to store thumbnails and their tag files.')
+    parser.add_argument('--thumbs_dir', type=str, default=os.path.join('img', 'thumbs'), help='Directory to store thumbnails.') # Updated help text
     # offline_tags.py will use thumbs_dir for its --image_folder and --output_folder (where .txt files are saved)
     # build_data_json.py will use thumbs_dir for its --tags_dir
-    parser.add_argument('--output_json', type=str, default='data.json', help='Path for the final data.json file.')
+    parser.add_argument('--output_json', type=str, default='data.json', help='Path for the final data.json file (Note: offline_tags.py currently hardcodes output to data.json in script root).') # Updated help text
     parser.add_argument('--watermark_path', type=str, default=os.path.join('img', 'overlay', 'watermark.png'), help='Path to the watermark image.')
     parser.add_argument('--clear_thumbs', action='store_true', help='Clear the thumbnails directory before generating new thumbnails.')
     parser.add_argument('--thumb_size', type=int, default=128, help='Size of the thumbnails (width and height).')
@@ -82,7 +82,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     make_thumbs_script = os.path.join(script_dir, 'make_thumbs.py')
     offline_tags_script = os.path.join(script_dir, 'offline_tags.py')
-    build_data_json_script = os.path.join(script_dir, 'build_data_json.py')
+    # build_data_json_script = os.path.join(script_dir, 'build_data_json.py') # Removed
 
     print(f"Pipeline Configuration:")
     print(f"  Originals Directory: {originals_dir}")
@@ -98,46 +98,36 @@ def main():
     make_thumbs_args = [
         '--source_dir', originals_dir,
         '--thumb_dir', thumbs_dir,
-        '--overlay_path', watermark_path,
+        '--overlay_path', watermark_path, # Corrected: was --watermark
+        # '--clear_thumbs', str(args.clear_thumbs), # Corrected logic below
         '--thumb_size', str(args.thumb_size)
     ]
-    if args.clear_thumbs:
+    if args.clear_thumbs: # Correctly append --clear_thumbs only if True
         make_thumbs_args.append('--clear_thumbs')
-    
+
     if not run_script(make_thumbs_script, make_thumbs_args):
-        print("Thumbnail generation failed. Exiting pipeline.")
+        print("Thumbnail generation failed. Aborting pipeline.")
         return
-    print("Thumbnail generation completed.")
-    print("-" * 30)
 
-    # Step 2: Generate tags for thumbnails
-    # offline_tags.py uses --image_folder for input and --output_folder for .txt files.
-    # We want it to process images in thumbs_dir and save .txt files also in thumbs_dir.
-    # The current offline_tags.py saves .txt files in the image_folder if output_folder is not specified or same.
-    print("\nStep 2: Generating tags for thumbnails...")
-    offline_tags_args = [
-        '--image_folder', thumbs_dir,
-        '--output_folder', thumbs_dir # Explicitly state to save tags in thumbs_dir
-    ]
+    # Step 2: Generate tags and data.json
+    print("\nStep 2: Generating tags and data.json...")
+    # offline_tags.py now takes the originals_dir and outputs data.json in its own directory (project root)
+    offline_tags_args = [originals_dir] # Pass only the image source directory
     if not run_script(offline_tags_script, offline_tags_args):
-        print("Tag generation failed. Exiting pipeline.")
+        print("Tag and data.json generation failed. Aborting pipeline.")
         return
-    print("Tag generation completed.")
-    print("-" * 30)
 
-    # Step 3: Build the data.json file
-    # build_data_json.py uses --tag_dir for .txt files and --originals_dir for original image paths.
-    print("\nStep 3: Building data.json...")
-    build_data_json_args = [
-        '--tag_dir', thumbs_dir, # Corrected from --tags_dir
-        '--originals_dir', originals_dir,
-        '--output_file', output_json
-    ]
-    if not run_script(build_data_json_script, build_data_json_args):
-        print("JSON generation failed. Exiting pipeline.")
-        return
-    print("JSON generation completed.")
-    print("--- PIPELINE FINISHED ---")
+    # Step 3: Build data.json (This step is now handled by offline_tags.py)
+    # print("\\nStep 3: Building data.json...")
+    # build_data_json_args = [
+    #     '--tags_dir', thumbs_dir, 
+    #     '--output_file', output_json
+    # ]
+    # if not run_script(build_data_json_script, build_data_json_args):
+    #     print("JSON generation failed. Aborting pipeline.")
+    #     return
 
-if __name__ == "__main__":
+    print("\nPipeline completed successfully!")
+
+if __name__ == '__main__':
     main()
