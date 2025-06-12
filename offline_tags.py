@@ -67,7 +67,9 @@ def process_folder(folder_path_str: str):
                 }
                 all_questions_data.append(image_data_entry)
 
-                print(f"Processed {img_path.name}: found tags - {', '.join(tags_list)}")
+                # The progress bar already shows how many images were processed,
+                # so avoid printing per-image status messages that clutter the
+                # output.
                 pbar.update(1)
             except Exception as e:
                 print(f"Error processing {img_path.name}: {e}")
