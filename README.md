@@ -11,7 +11,7 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
 1.  **Install Dependencies:**
     Ensure you have Python installed. Then, install the necessary libraries. While specific versions may vary, you'll typically need:
     ```bash
-    pip install Pillow transformers torch torchvision torchaudio spacy
+    pip install Pillow transformers torch torchvision torchaudio spacy tqdm
     python -m spacy download en_core_web_sm 
     ```
     (Note: `torch` installation can vary based on your system and CUDA availability. Refer to the official PyTorch website for specific instructions if needed.)

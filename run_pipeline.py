@@ -2,8 +2,9 @@ import subprocess
 import argparse
 import os
 import sys
-from pathlib import Path # Added import
-import platform # Added import
+from pathlib import Path  # Added import
+import platform  # Added import
+from tqdm import tqdm
 
 # Added helper function
 def get_default_pictures_folder() -> Path:
@@ -93,8 +94,7 @@ def main():
     print(f"  Thumbnail Size: {args.thumb_size}")
     print("-" * 30)
 
-    # Step 1: Generate thumbnails
-    print("\nStep 1: Generating thumbnails...")
+    # Prepare arguments for the individual steps
     make_thumbs_args = [
         '--source_dir', originals_dir,
         '--thumb_dir', thumbs_dir,
@@ -102,20 +102,24 @@ def main():
         # '--clear_thumbs', str(args.clear_thumbs), # Corrected logic below
         '--thumb_size', str(args.thumb_size)
     ]
-    if args.clear_thumbs: # Correctly append --clear_thumbs only if True
+    if args.clear_thumbs:  # Correctly append --clear_thumbs only if True
         make_thumbs_args.append('--clear_thumbs')
 
-    if not run_script(make_thumbs_script, make_thumbs_args):
-        print("Thumbnail generation failed. Aborting pipeline.")
-        return
+    offline_tags_args = [originals_dir]  # Pass only the image source directory
 
-    # Step 2: Generate tags and data.json
-    print("\nStep 2: Generating tags and data.json...")
-    # offline_tags.py now takes the originals_dir and outputs data.json in its own directory (project root)
-    offline_tags_args = [originals_dir] # Pass only the image source directory
-    if not run_script(offline_tags_script, offline_tags_args):
-        print("Tag and data.json generation failed. Aborting pipeline.")
-        return
+    # Run each pipeline phase with a progress bar
+    with tqdm(total=2, desc="Pipeline Progress", unit="step") as pbar:
+        print("\nStep 1: Generating thumbnails...")
+        if not run_script(make_thumbs_script, make_thumbs_args):
+            print("Thumbnail generation failed. Aborting pipeline.")
+            return
+        pbar.update(1)
+
+        print("\nStep 2: Generating tags and data.json...")
+        if not run_script(offline_tags_script, offline_tags_args):
+            print("Tag and data.json generation failed. Aborting pipeline.")
+            return
+        pbar.update(1)
 
     # Step 3: Build data.json (This step is now handled by offline_tags.py)
     # print("\\nStep 3: Building data.json...")
