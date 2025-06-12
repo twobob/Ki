@@ -26,6 +26,7 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
     *   Generate descriptive tags for each image using a local BLIP-2 model.
     *   Create thumbnails for each image and store them in the `img/thumbs/` directory. An optional watermark from `img/overlay/watermark.png` may be applied if `make_thumbs.py` (called by the pipeline) is configured for it.
     *   Compile all tag information into `data.json`, which is used by the search interface.
+    *   Show per-image progress bars so you know exactly how many files remain.
 
 3.  **Run the Web Server:**
     Once your images are processed and `data.json` is generated, start the local web server:
