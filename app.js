@@ -111,6 +111,9 @@ var clearButton =   $('#clearButton');
 	})
  
  
+  const SIDEBAR_TITLE_LENGTH = 15;
+  const MAIN_TITLE_LENGTH = 24;
+
   function truncate(str, len) {
     if (str.length <= len) return str;
     return str.substring(0, len - 3) + '...';
@@ -139,12 +142,12 @@ var clearButton =   $('#clearButton');
 
       id: make_id,
       title:  fullTitle,
-      titleShort: truncate(fullTitle, 15),
+      titleShort: truncate(fullTitle, SIDEBAR_TITLE_LENGTH),
       body: holder,
           searchTerms: Object.keys(raw.question.content).join(' '),
       tags:  clickableTags, // Object.keys(raw.question.content).join(' '),
           img: raw.img.filename,
-      imgShort: truncate(raw.img.filename, 24),
+      imgShort: truncate(raw.img.filename, MAIN_TITLE_LENGTH),
           thumb: raw.thumb.filename
     }
   })
