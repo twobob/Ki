@@ -111,6 +111,11 @@ var clearButton =   $('#clearButton');
 	})
  
  
+  function truncate(str, len) {
+    if (str.length <= len) return str;
+    return str.substring(0, len - 3) + '...';
+  }
+
   var questions = rawQuestions.map(function (raw) {
 	  rawQuestion = raw;
 	  
@@ -129,15 +134,18 @@ var clearButton =   $('#clearButton');
 	})
 	
 	
+    var fullTitle = raw.img.filename.replace('.JPG','');
     return {
-		
+
       id: make_id,
-      title:  raw.img.filename.replace('.JPG',''),
+      title:  fullTitle,
+      titleShort: truncate(fullTitle, 15),
       body: holder,
-	  searchTerms: Object.keys(raw.question.content).join(' '),
+          searchTerms: Object.keys(raw.question.content).join(' '),
       tags:  clickableTags, // Object.keys(raw.question.content).join(' '),
-	  img: raw.img.filename,
-	  thumb: raw.thumb.filename
+          img: raw.img.filename,
+      imgShort: truncate(raw.img.filename, 24),
+          thumb: raw.thumb.filename
     }
   })
 
