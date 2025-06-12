@@ -1,0 +1,143 @@
+import subprocess
+import argparse
+import os
+import sys
+from pathlib import Path # Added import
+import platform # Added import
+
+# Added helper function
+def get_default_pictures_folder() -> Path:
+    system = platform.system()
+    if system == "Windows":
+        # Correctly get USERPROFILE and then append Pictures
+        user_profile = os.environ.get("USERPROFILE")
+        if user_profile:
+            return Path(user_profile) / "Pictures"
+        else: # Fallback if USERPROFILE is not set
+            return Path.cwd() # Or some other sensible fallback
+    elif system == "Darwin":  # macOS
+        return Path.home() / "Pictures"
+    elif system == "Linux":
+        xdg_pictures_dir = os.environ.get("XDG_PICTURES_DIR")
+        if xdg_pictures_dir:
+            return Path(xdg_pictures_dir)
+        return Path.home() / "Pictures"
+    else: # Fallback for other OSes
+        return Path.cwd()
+
+def run_script(script_path, args):
+    """Helper function to run a Python script with arguments."""
+    # Ensure all arguments are strings, especially paths
+    cmd = [sys.executable, script_path] + [str(arg) for arg in args]
+    print(f"Running command: {' '.join(cmd)}")
+    try:
+        # Removed cwd parameter from Popen
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
+                                   text=True, encoding='utf-8', errors='replace')
+        stdout, stderr = process.communicate()
+        
+        print(f"---- STDOUT for {os.path.basename(script_path)} ----")
+        print(stdout if stdout else "<No stdout>")
+        print(f"---- STDERR for {os.path.basename(script_path)} ----")
+        print(stderr if stderr else "<No stderr>")
+
+        if process.returncode != 0:
+            print(f"Error running {script_path}. Return code: {process.returncode}")
+            return False
+        print(f"Successfully ran {script_path}.")
+        return True
+    except Exception as e:
+        print(f"Failed to run {script_path}: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def main():
+    parser = argparse.ArgumentParser(description="Run the full image processing pipeline: thumbnails, tags, and JSON generation.")
+    
+    # Use the helper function for the default value
+    default_originals_path = get_default_pictures_folder()
+    parser.add_argument('--originals_dir', type=str, default=str(default_originals_path), 
+                        help=f'Directory containing original images. Defaults to OS pictures folder: {default_originals_path}')
+    
+    parser.add_argument('--thumbs_dir', type=str, default=os.path.join('img', 'thumbs'), help='Directory to store thumbnails and their tag files.')
+    # offline_tags.py will use thumbs_dir for its --image_folder and --output_folder (where .txt files are saved)
+    # build_data_json.py will use thumbs_dir for its --tags_dir
+    parser.add_argument('--output_json', type=str, default='data.json', help='Path for the final data.json file.')
+    parser.add_argument('--watermark_path', type=str, default=os.path.join('img', 'overlay', 'watermark.png'), help='Path to the watermark image.')
+    parser.add_argument('--clear_thumbs', action='store_true', help='Clear the thumbnails directory before generating new thumbnails.')
+    parser.add_argument('--thumb_size', type=int, default=128, help='Size of the thumbnails (width and height).')
+
+    args = parser.parse_args()
+
+    # Ensure paths are absolute for consistency, especially when calling subprocesses
+    # However, the scripts themselves are designed to work with relative paths from project root.
+    # Let's keep them relative for now, assuming the wrapper is run from the project root.
+    originals_dir = args.originals_dir
+    thumbs_dir = args.thumbs_dir
+    output_json = args.output_json
+    watermark_path = args.watermark_path
+
+    # Construct script paths relative to this script's location (project root)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    make_thumbs_script = os.path.join(script_dir, 'make_thumbs.py')
+    offline_tags_script = os.path.join(script_dir, 'offline_tags.py')
+    build_data_json_script = os.path.join(script_dir, 'build_data_json.py')
+
+    print(f"Pipeline Configuration:")
+    print(f"  Originals Directory: {originals_dir}")
+    print(f"  Thumbnails Directory: {thumbs_dir}")
+    print(f"  Output JSON: {output_json}")
+    print(f"  Watermark Path: {watermark_path}")
+    print(f"  Clear Thumbnails: {args.clear_thumbs}")
+    print(f"  Thumbnail Size: {args.thumb_size}")
+    print("-" * 30)
+
+    # Step 1: Generate thumbnails
+    print("\nStep 1: Generating thumbnails...")
+    make_thumbs_args = [
+        '--source_dir', originals_dir,
+        '--thumb_dir', thumbs_dir,
+        '--overlay_path', watermark_path,
+        '--thumb_size', str(args.thumb_size)
+    ]
+    if args.clear_thumbs:
+        make_thumbs_args.append('--clear_thumbs')
+    
+    if not run_script(make_thumbs_script, make_thumbs_args):
+        print("Thumbnail generation failed. Exiting pipeline.")
+        return
+    print("Thumbnail generation completed.")
+    print("-" * 30)
+
+    # Step 2: Generate tags for thumbnails
+    # offline_tags.py uses --image_folder for input and --output_folder for .txt files.
+    # We want it to process images in thumbs_dir and save .txt files also in thumbs_dir.
+    # The current offline_tags.py saves .txt files in the image_folder if output_folder is not specified or same.
+    print("\nStep 2: Generating tags for thumbnails...")
+    offline_tags_args = [
+        '--image_folder', thumbs_dir,
+        '--output_folder', thumbs_dir # Explicitly state to save tags in thumbs_dir
+    ]
+    if not run_script(offline_tags_script, offline_tags_args):
+        print("Tag generation failed. Exiting pipeline.")
+        return
+    print("Tag generation completed.")
+    print("-" * 30)
+
+    # Step 3: Build the data.json file
+    # build_data_json.py uses --tag_dir for .txt files and --originals_dir for original image paths.
+    print("\nStep 3: Building data.json...")
+    build_data_json_args = [
+        '--tag_dir', thumbs_dir, # Corrected from --tags_dir
+        '--originals_dir', originals_dir,
+        '--output_file', output_json
+    ]
+    if not run_script(build_data_json_script, build_data_json_args):
+        print("JSON generation failed. Exiting pipeline.")
+        return
+    print("JSON generation completed.")
+    print("--- PIPELINE FINISHED ---")
+
+if __name__ == "__main__":
+    main()
