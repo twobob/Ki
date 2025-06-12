@@ -7,7 +7,14 @@ import shutil
 from tqdm import tqdm
 
 
-def process_images(source_dir: Path, thumb_dir: Path, overlay_path: Path, thumb_size: int, clear_existing_thumbs: bool) -> None:
+def process_images(
+    source_dir: Path,
+    thumb_dir: Path,
+    overlay_path: Path,
+    thumb_size: int,
+    clear_existing_thumbs: bool,
+    recurse: bool = False,
+) -> None:
     script_dir = Path(__file__).resolve().parent # Get the directory of the currently running script
     # Use provided thumb_dir and overlay_path directly
 
@@ -32,10 +39,12 @@ def process_images(source_dir: Path, thumb_dir: Path, overlay_path: Path, thumb_
     }
 
     source_image_paths = []
-    # Define case-insensitive glob patterns for JPG, JPEG, and PNG files
     img_glob_patterns = ["*.[jJ][pP][gG]", "*.[jJ][pP][eE][gG]", "*.[pP][nN][gG]"]
     for pattern in img_glob_patterns:
-        source_image_paths.extend(source_dir.glob(pattern))
+        if recurse:
+            source_image_paths.extend(source_dir.rglob(pattern))
+        else:
+            source_image_paths.extend(source_dir.glob(pattern))
     
     total_source_images = len(source_image_paths)
     thumbnails_created_this_run = 0
@@ -220,6 +229,18 @@ if __name__ == "__main__":
         action="store_true",
         help="If set, clears all files from the thumbnail directory before generating new ones.",
     )
+    parser.add_argument(
+        "--recurse",
+        action="store_true",
+        help="Recurse into subdirectories when searching for images.",
+    )
     args = parser.parse_args()
 
-    process_images(args.source_dir, args.thumb_dir, args.overlay_path, args.thumb_size, args.clear_thumbs)
+    process_images(
+        args.source_dir,
+        args.thumb_dir,
+        args.overlay_path,
+        args.thumb_size,
+        args.clear_thumbs,
+        args.recurse,
+    )
