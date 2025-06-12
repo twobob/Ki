@@ -4,6 +4,7 @@ import platform
 from pathlib import Path
 from PIL import Image, ImageOps
 import shutil
+from tqdm import tqdm
 
 
 def process_images(source_dir: Path, thumb_dir: Path, overlay_path: Path, thumb_size: int, clear_existing_thumbs: bool) -> None:
@@ -49,93 +50,100 @@ def process_images(source_dir: Path, thumb_dir: Path, overlay_path: Path, thumb_
         print("Watermark not found, proceeding without it.")
     print(f"Found {total_source_images} source image(s) to consider.")
 
-    for img_path in sorted(source_image_paths):
-        # Compare the stem of the source image (e.g., "image1" from "image1.jpg")
-        # with the stems derived from existing thumbnails.
-        if img_path.stem in existing_thumb_stems:
-            print(f"Thumbnail for {img_path.name} already exists (as {img_path.stem}.THUMB.JPG), skipping.")
-            images_skipped_this_run += 1
-            continue
-
-        try:
-            image = Image.open(img_path)
-            if image is None:
-                print(f"Failed to open image {img_path.name}, skipping.")
-                images_skipped_this_run += 1 # Count as skipped if cannot be opened
+    with tqdm(total=total_source_images, desc="Creating Thumbnails", unit="image") as pbar:
+        for img_path in sorted(source_image_paths):
+            # Compare the stem of the source image (e.g., "image1" from "image1.jpg")
+            # with the stems derived from existing thumbnails.
+            if img_path.stem in existing_thumb_stems:
+                print(f"Thumbnail for {img_path.name} already exists (as {img_path.stem}.THUMB.JPG), skipping.")
+                images_skipped_this_run += 1
+                pbar.update(1)
                 continue
-            
-            current_image_format = image.format # Store format before exif_transpose
-            image = ImageOps.exif_transpose(image)
-            if image is None: 
-                image = Image.open(img_path) 
-                if image is None: 
-                    print(f"Failed to process EXIF data for {img_path.name} and could not re-open, skipping.")
-                    images_skipped_this_run += 1
+
+            try:
+                image = Image.open(img_path)
+                if image is None:
+                    print(f"Failed to open image {img_path.name}, skipping.")
+                    images_skipped_this_run += 1  # Count as skipped if cannot be opened
+                    pbar.update(1)
                     continue
-            
-            # Use Image.Resampling.LANCZOS for newer Pillow versions
-            # For older versions, Image.LANCZOS is used.
-            if hasattr(Image, "Resampling"):
-                resample_filter = Image.Resampling.LANCZOS
-            else:
-                resample_filter = Image.LANCZOS
-            thumb = image.resize((thumb_size, thumb_size), resample_filter)
 
-            # Apply overlay if watermark.png exists
-            if overlay_path.exists():
-                try:
-                    logo_original = Image.open(overlay_path).convert("RGBA")
-                    logo = logo_original.copy() # Work with a copy to avoid modifying the original if opened multiple times
+                current_image_format = image.format  # Store format before exif_transpose
+                image = ImageOps.exif_transpose(image)
+                if image is None:
+                    image = Image.open(img_path)
+                    if image is None:
+                        print(f"Failed to process EXIF data for {img_path.name} and could not re-open, skipping.")
+                        images_skipped_this_run += 1
+                        pbar.update(1)
+                        continue
 
-                    thumb_width, thumb_height = thumb.size
-                    logo_width, logo_height = logo.size
+                # Use Image.Resampling.LANCZOS for newer Pillow versions
+                # For older versions, Image.LANCZOS is used.
+                if hasattr(Image, "Resampling"):
+                    resample_filter = Image.Resampling.LANCZOS
+                else:
+                    resample_filter = Image.LANCZOS
+                thumb = image.resize((thumb_size, thumb_size), resample_filter)
 
-                    # 1. Scale the watermark if it's larger than the thumbnail
-                    if logo_width > thumb_width or logo_height > thumb_height:
-                        scale_ratio = min(thumb_width / logo_width, thumb_height / logo_height)
-                        new_logo_width = int(logo_width * scale_ratio)
-                        new_logo_height = int(logo_height * scale_ratio)
-                        
-                        # Use Image.Resampling.LANCZOS for newer Pillow versions for logo resizing
-                        if hasattr(Image, "Resampling"):
-                            resample_filter_logo = Image.Resampling.LANCZOS
-                        else:
-                            resample_filter_logo = Image.LANCZOS
-                        logo = logo.resize((new_logo_width, new_logo_height), resample_filter_logo)
-                        logo_width, logo_height = logo.size # Update dimensions after resize
+                # Apply overlay if watermark.png exists
+                if overlay_path.exists():
+                    try:
+                        logo_original = Image.open(overlay_path).convert("RGBA")
+                        logo = logo_original.copy()  # Work with a copy to avoid modifying the original if opened multiple times
 
-                    # 2. Calculate position for bottom-right placement
-                    x_pos = thumb_width - logo_width
-                    y_pos = thumb_height - logo_height
+                        thumb_width, thumb_height = thumb.size
+                        logo_width, logo_height = logo.size
 
-                    # Ensure thumb is RGBA to handle logo transparency correctly
-                    if thumb.mode != 'RGBA':
-                        thumb = thumb.convert('RGBA')
-                    
-                    # Paste the (potentially resized) logo at the bottom-right
-                    # The third argument 'logo' uses the alpha channel of the logo as the mask
-                    thumb.paste(logo, (x_pos, y_pos), logo) 
+                        # 1. Scale the watermark if it's larger than the thumbnail
+                        if logo_width > thumb_width or logo_height > thumb_height:
+                            scale_ratio = min(thumb_width / logo_width, thumb_height / logo_height)
+                            new_logo_width = int(logo_width * scale_ratio)
+                            new_logo_height = int(logo_height * scale_ratio)
 
-                except Exception as e_overlay:
-                    print(f"Failed to apply overlay to {img_path.name}: {e_overlay}")
+                            # Use Image.Resampling.LANCZOS for newer Pillow versions for logo resizing
+                            if hasattr(Image, "Resampling"):
+                                resample_filter_logo = Image.Resampling.LANCZOS
+                            else:
+                                resample_filter_logo = Image.LANCZOS
+                            logo = logo.resize((new_logo_width, new_logo_height), resample_filter_logo)
+                            logo_width, logo_height = logo.size  # Update dimensions after resize
 
-            # Save the thumbnail
-            # Ensure the image is in RGB format before saving as JPEG
-            if thumb.mode == 'RGBA' or thumb.mode == 'P': # P is for paletted images like some GIFs/PNGs
-                thumb = thumb.convert('RGB')
-            
-            thumb_filename = f"{img_path.stem}.THUMB.JPG"
-            thumb_save_path = thumb_dir / thumb_filename
-            thumb.save(thumb_save_path, "JPEG", quality=90)
-            thumbnails_created_this_run += 1
-            print(f"Created thumbnail: {thumb_save_path}")
+                        # 2. Calculate position for bottom-right placement
+                        x_pos = thumb_width - logo_width
+                        y_pos = thumb_height - logo_height
 
-        except FileNotFoundError:
-            print(f"Source image {img_path.name} not found during processing, skipping.")
-            images_skipped_this_run += 1
-        except Exception as e:
-            print(f"Error processing {img_path.name}: {e}")
-            images_skipped_this_run += 1
+                        # Ensure thumb is RGBA to handle logo transparency correctly
+                        if thumb.mode != 'RGBA':
+                            thumb = thumb.convert('RGBA')
+
+                        # Paste the (potentially resized) logo at the bottom-right
+                        # The third argument 'logo' uses the alpha channel of the logo as the mask
+                        thumb.paste(logo, (x_pos, y_pos), logo)
+
+                    except Exception as e_overlay:
+                        print(f"Failed to apply overlay to {img_path.name}: {e_overlay}")
+
+                # Save the thumbnail
+                # Ensure the image is in RGB format before saving as JPEG
+                if thumb.mode == 'RGBA' or thumb.mode == 'P':  # P is for paletted images like some GIFs/PNGs
+                    thumb = thumb.convert('RGB')
+
+                thumb_filename = f"{img_path.stem}.THUMB.JPG"
+                thumb_save_path = thumb_dir / thumb_filename
+                thumb.save(thumb_save_path, "JPEG", quality=90)
+                thumbnails_created_this_run += 1
+                print(f"Created thumbnail: {thumb_save_path}")
+                pbar.update(1)
+
+            except FileNotFoundError:
+                print(f"Source image {img_path.name} not found during processing, skipping.")
+                images_skipped_this_run += 1
+                pbar.update(1)
+            except Exception as e:
+                print(f"Error processing {img_path.name}: {e}")
+                images_skipped_this_run += 1
+                pbar.update(1)
 
     print("\\n--- Summary ---")
     print(f"Total source images found: {total_source_images}")

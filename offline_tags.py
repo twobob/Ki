@@ -7,6 +7,7 @@ import torch
 import os
 import platform
 import json  # Added import
+from tqdm import tqdm
 
 
 def caption_image(image_path, processor, model, device):  # device parameter might become redundant
@@ -47,9 +48,10 @@ def process_folder(folder_path_str: str):
     all_questions_data = []  # Initialize list to hold all image data
 
     image_folder_path = Path(folder_path_str)  # Convert input string to Path
+    image_paths = [p for p in sorted(image_folder_path.iterdir()) if p.is_file() and p.suffix in img_extensions]
 
-    for img_path in sorted(image_folder_path.iterdir()):
-        if img_path.is_file() and img_path.suffix in img_extensions:
+    with tqdm(total=len(image_paths), desc="Captioning Images", unit="image") as pbar:
+        for img_path in image_paths:
             try:
                 caption = caption_image(img_path, processor, model, device)
                 tags_list = extract_tags(caption, nlp)  # Get list of tags
@@ -66,8 +68,10 @@ def process_folder(folder_path_str: str):
                 all_questions_data.append(image_data_entry)
 
                 print(f"Processed {img_path.name}: found tags - {', '.join(tags_list)}")
+                pbar.update(1)
             except Exception as e:
                 print(f"Error processing {img_path.name}: {e}")
+                pbar.update(1)
             # Removed writing to individual .txt files
 
     final_output_data = {"questions": all_questions_data}

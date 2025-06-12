@@ -4,7 +4,6 @@ import os
 import sys
 from pathlib import Path  # Added import
 import platform  # Added import
-from tqdm import tqdm
 
 # Added helper function
 def get_default_pictures_folder() -> Path:
@@ -107,19 +106,15 @@ def main():
 
     offline_tags_args = [originals_dir]  # Pass only the image source directory
 
-    # Run each pipeline phase with a progress bar
-    with tqdm(total=2, desc="Pipeline Progress", unit="step") as pbar:
-        print("\nStep 1: Generating thumbnails...")
-        if not run_script(make_thumbs_script, make_thumbs_args):
-            print("Thumbnail generation failed. Aborting pipeline.")
-            return
-        pbar.update(1)
+    print("\nStep 1: Generating thumbnails...")
+    if not run_script(make_thumbs_script, make_thumbs_args):
+        print("Thumbnail generation failed. Aborting pipeline.")
+        return
 
-        print("\nStep 2: Generating tags and data.json...")
-        if not run_script(offline_tags_script, offline_tags_args):
-            print("Tag and data.json generation failed. Aborting pipeline.")
-            return
-        pbar.update(1)
+    print("\nStep 2: Generating tags and data.json...")
+    if not run_script(offline_tags_script, offline_tags_args):
+        print("Tag and data.json generation failed. Aborting pipeline.")
+        return
 
     # Step 3: Build data.json (This step is now handled by offline_tags.py)
     # print("\\nStep 3: Building data.json...")
