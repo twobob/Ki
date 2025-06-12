@@ -55,11 +55,28 @@ def main():
     # build_data_json.py will use thumbs_dir for its --tags_dir
     parser.add_argument('--output_json', type=str, default='data.json', help='Path for the final data.json file (Note: offline_tags.py currently hardcodes output to data.json in script root).') # Updated help text
     parser.add_argument('--watermark_path', type=str, default=os.path.join('img', 'overlay', 'watermark.png'), help='Path to the watermark image.')
-    parser.add_argument('--clear_thumbs', action='store_true', help='Clear the thumbnails directory before generating new thumbnails.')
-    parser.add_argument('--thumb_size', type=int, default=128, help='Size of the thumbnails (width and height).')
-    parser.add_argument('--recurse', action='store_true', help='Recurse into subdirectories when processing images.')
+    parser.add_argument('-C', '--clear', action='store_true',
+                        help='Clear the thumbnails directory before generating new thumbnails.')
+    parser.add_argument('--thumb_size', type=int, default=128,
+                        help='Size of the thumbnails (width and height).')
+    parser.add_argument('-R', '--recurse', action='store_true',
+                        help='Recurse into subdirectories when processing images.')
 
     args = parser.parse_args()
+
+    # Fix common Windows quoting mistakes where extra flags become part of the
+    # --originals_dir argument (e.g. `"C:\Users\me\Pictures\" --recurse`).
+    # If such a situation is detected, split the argument and recover the flags.
+    if " --" in args.originals_dir:
+        parts = args.originals_dir.split()
+        args.originals_dir = parts[0].strip('"')
+        for flag in parts[1:]:
+            if flag in ("--recurse", "-R"):
+                args.recurse = True
+            elif flag in ("--clear", "-C", "--clear_thumbs"):
+                args.clear = True
+            else:
+                print(f"Warning: Unrecognized token '{flag}' found in --originals_dir argument")
 
     # Ensure paths are absolute for consistency, especially when calling subprocesses
     # However, the scripts themselves are designed to work with relative paths from project root.
@@ -81,7 +98,7 @@ def main():
     print(f"  Thumbnails Directory: {thumbs_dir}")
     print(f"  Output JSON: {output_json}")
     print(f"  Watermark Path: {watermark_path}")
-    print(f"  Clear Thumbnails: {args.clear_thumbs}")
+    print(f"  Clear Thumbnails: {args.clear}")
     print(f"  Thumbnail Size: {args.thumb_size}")
     print(f"  Recurse into subfolders: {recurse}")
     print("-" * 30)
@@ -91,11 +108,11 @@ def main():
         '--source_dir', originals_dir,
         '--thumb_dir', thumbs_dir,
         '--overlay_path', watermark_path, # Corrected: was --watermark
-        # '--clear_thumbs', str(args.clear_thumbs), # Corrected logic below
+        # '--clear', str(args.clear), # Corrected logic below
         '--thumb_size', str(args.thumb_size)
     ]
-    if args.clear_thumbs:  # Correctly append --clear_thumbs only if True
-        make_thumbs_args.append('--clear_thumbs')
+    if args.clear:  # Correctly append --clear only if True
+        make_thumbs_args.append('--clear')
     if recurse:
         make_thumbs_args.append('--recurse')
 

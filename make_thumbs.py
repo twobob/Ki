@@ -20,7 +20,7 @@ def process_images(
 
     if clear_existing_thumbs:
         if thumb_dir.exists():
-            print(f"--clear_thumbs specified. Clearing all items from {thumb_dir}...")
+            print(f"--clear specified. Clearing all items from {thumb_dir}...")
             for item in thumb_dir.iterdir():
                 if item.is_file():
                     item.unlink()
@@ -28,7 +28,7 @@ def process_images(
                     shutil.rmtree(item)
             print(f"Directory {thumb_dir} cleared.")
         else:
-            print(f"--clear_thumbs specified, but directory {thumb_dir} does not exist. Will create it.")
+            print(f"--clear specified, but directory {thumb_dir} does not exist. Will create it.")
     
     thumb_dir.mkdir(parents=True, exist_ok=True) # Ensure it exists, create parents if necessary
 
@@ -225,7 +225,8 @@ if __name__ == "__main__":
         help="Size of the thumbnails (width and height). Defaults to 128."
     )
     parser.add_argument(
-        "--clear_thumbs",
+        "-C",
+        "--clear",
         action="store_true",
         help="If set, clears all files from the thumbnail directory before generating new ones.",
     )
@@ -241,6 +242,6 @@ if __name__ == "__main__":
         args.thumb_dir,
         args.overlay_path,
         args.thumb_size,
-        args.clear_thumbs,
+        args.clear,
         args.recurse,
     )
