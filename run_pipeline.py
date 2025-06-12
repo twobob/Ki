@@ -27,22 +27,12 @@ def get_default_pictures_folder() -> Path:
 
 def run_script(script_path, args):
     """Helper function to run a Python script with arguments."""
-    # Ensure all arguments are strings, especially paths
     cmd = [sys.executable, script_path] + [str(arg) for arg in args]
     print(f"Running command: {' '.join(cmd)}")
     try:
-        # Removed cwd parameter from Popen
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
-                                   text=True, encoding='utf-8', errors='replace')
-        stdout, stderr = process.communicate()
-        
-        print(f"---- STDOUT for {os.path.basename(script_path)} ----")
-        print(stdout if stdout else "<No stdout>")
-        print(f"---- STDERR for {os.path.basename(script_path)} ----")
-        print(stderr if stderr else "<No stderr>")
-
-        if process.returncode != 0:
-            print(f"Error running {script_path}. Return code: {process.returncode}")
+        completed = subprocess.run(cmd)
+        if completed.returncode != 0:
+            print(f"Error running {script_path}. Return code: {completed.returncode}")
             return False
         print(f"Successfully ran {script_path}.")
         return True
