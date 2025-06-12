@@ -4,8 +4,8 @@
 	<div style="width:320px; overflow:hidden; max-height: 173px; min-height: 173px; float:{{#everyOther @index}}left;  {{else}}none{{/everyOther}}">
 	<ul>
       <li data-question-id="{{id}}">
-        <h2 style="padding-bottom: 0px;"  ><a href="#">{{title}}</a></h2>
-		 <img style="float:left; margin-right: 10px;" class="resizable_img" src="./img/thumbs/{{{thumb}}}"  width="120" height="120" ></img> 
+        <h2 style="padding-bottom: 0px;"  ><a href="#" title="{{title}}">{{titleShort}}</a></h2>
+                 <img style="float:left; margin-right: 10px;" class="resizable_img" src="./img/thumbs/{{{thumb}}}"  width="120" height="120" title="{{img}}" ></img>
 	
 <p style="line-height: 1.0em; min-height: 100px; margin-top: -14px;"><small>{{#each tags}}
     {{{this}}}{{#unless @last}}, {{/unless}}
