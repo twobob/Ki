@@ -19,7 +19,7 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
 2.  **Process Your Images:**
     Navigate to the repository directory and run the main pipeline script, providing the path to your image folder:
     ```bash
-    python run_pipeline.py PATH_TO_YOUR_IMAGES [-R | --recurse] [-C | --clear]
+    python run_pipeline.py PATH_TO_YOUR_IMAGES [-R | --recurse] [-C | --clear] [-V | --verbose]
     ```
     **Windows users:** Avoid quoting a path that ends with a single backslash. Either remove the trailing backslash or escape it as `\\` so additional flags are parsed correctly.
     This script will:
@@ -29,6 +29,7 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
     *   Optionally clear the contents of `img/thumbs/` first when using `-C`/`--clear`.
     *   Compile all tag information into `data.json`, which is used by the search interface.
     *   Show per-image progress bars so you know exactly how many files remain.
+    *   Use `-V`/`--verbose` to print per-image details instead of progress bars.
 
 3.  **Run the Web Server:**
     Once your images are processed and `data.json` is generated, start the local web server:

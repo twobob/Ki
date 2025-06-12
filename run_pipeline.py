@@ -61,6 +61,8 @@ def main():
                         help='Size of the thumbnails (width and height).')
     parser.add_argument('-R', '--recurse', action='store_true',
                         help='Recurse into subdirectories when processing images.')
+    parser.add_argument('-V', '--verbose', action='store_true',
+                        help='Show per-image messages and disable progress bars in sub-scripts.')
 
     args = parser.parse_args()
 
@@ -101,6 +103,7 @@ def main():
     print(f"  Clear Thumbnails: {args.clear}")
     print(f"  Thumbnail Size: {args.thumb_size}")
     print(f"  Recurse into subfolders: {recurse}")
+    print(f"  Verbose output: {args.verbose}")
     print("-" * 30)
 
     # Prepare arguments for the individual steps
@@ -119,6 +122,9 @@ def main():
     offline_tags_args = [originals_dir]
     if recurse:
         offline_tags_args.append('--recurse')
+    if args.verbose:
+        make_thumbs_args.append('--verbose')
+        offline_tags_args.append('--verbose')
 
     print("\nStep 1: Generating thumbnails...")
     if not run_script(make_thumbs_script, make_thumbs_args):

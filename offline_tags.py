@@ -25,7 +25,7 @@ def extract_tags(caption, nlp):
     return sorted(tag.upper() for tag in nouns)
 
 
-def process_folder(folder_path_str: str, recurse: bool = False):
+def process_folder(folder_path_str: str, recurse: bool = False, verbose: bool = False):
     """Process a folder of images and write captions/tags to data.json.
 
     Args:
@@ -60,31 +60,51 @@ def process_folder(folder_path_str: str, recurse: bool = False):
         iter_paths = image_folder_path.iterdir()
     image_paths = [p for p in sorted(iter_paths) if p.is_file() and p.suffix in img_extensions]
 
-    with tqdm(total=len(image_paths), desc="Captioning Images", unit="image") as pbar:
+    if verbose:
         for img_path in image_paths:
             try:
                 caption = caption_image(img_path, processor, model, device)
-                tags_list = extract_tags(caption, nlp)  # Get list of tags
+                tags_list = extract_tags(caption, nlp)
 
-                # Create the desired dictionary format for content
                 content_dict = {tag: "1.0" for tag in tags_list}
-
                 thumb_filename = f"{img_path.stem}.THUMB.JPG"
                 image_data_entry = {
                     "img": {"filename": img_path.name},
-                    "question": {"content": content_dict},  # Changed "tags" to "content" and used the new dict
+                    "question": {"content": content_dict},
                     "thumb": {"filename": thumb_filename},
                 }
                 all_questions_data.append(image_data_entry)
 
-                # The progress bar already shows how many images were processed,
-                # so avoid printing per-image status messages that clutter the
-                # output.
-                pbar.update(1)
+                print(f"Tags for {img_path.name}: {', '.join(tags_list)}")
             except Exception as e:
                 print(f"Error processing {img_path.name}: {e}")
-                pbar.update(1)
             # Removed writing to individual .txt files
+    else:
+        with tqdm(total=len(image_paths), desc="Captioning Images", unit="image") as pbar:
+            for img_path in image_paths:
+                try:
+                    caption = caption_image(img_path, processor, model, device)
+                    tags_list = extract_tags(caption, nlp)  # Get list of tags
+
+                    # Create the desired dictionary format for content
+                    content_dict = {tag: "1.0" for tag in tags_list}
+
+                    thumb_filename = f"{img_path.stem}.THUMB.JPG"
+                    image_data_entry = {
+                        "img": {"filename": img_path.name},
+                        "question": {"content": content_dict},  # Changed "tags" to "content" and used the new dict
+                        "thumb": {"filename": thumb_filename},
+                    }
+                    all_questions_data.append(image_data_entry)
+
+                    # The progress bar already shows how many images were processed,
+                    # so avoid printing per-image status messages that clutter the
+                    # output.
+                    pbar.update(1)
+                except Exception as e:
+                    print(f"Error processing {img_path.name}: {e}")
+                    pbar.update(1)
+                # Removed writing to individual .txt files
 
     final_output_data = {"questions": all_questions_data}
 
@@ -125,6 +145,12 @@ def main():
         action="store_true",
         help="Recurse into subdirectories when scanning for images.",
     )
+    parser.add_argument(
+        "-V",
+        "--verbose",
+        action="store_true",
+        help="Show per-image tags and disable progress bars.",
+    )
     args = parser.parse_args()
 
     if not Path(args.folder).is_dir():
@@ -135,7 +161,7 @@ def main():
             )
         return
 
-    process_folder(args.folder, args.recurse)
+    process_folder(args.folder, args.recurse, args.verbose)
 
 
 if __name__ == "__main__":

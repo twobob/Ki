@@ -14,6 +14,7 @@ def process_images(
     thumb_size: int,
     clear_existing_thumbs: bool,
     recurse: bool = False,
+    verbose: bool = False,
 ) -> None:
     script_dir = Path(__file__).resolve().parent # Get the directory of the currently running script
     # Use provided thumb_dir and overlay_path directly
@@ -59,14 +60,20 @@ def process_images(
         print("Watermark not found, proceeding without it.")
     print(f"Found {total_source_images} source image(s) to consider.")
 
-    with tqdm(total=total_source_images, desc="Creating Thumbnails", unit="image") as pbar:
-        for img_path in sorted(source_image_paths):
+    iterator = sorted(source_image_paths)
+    pbar = None
+    if not verbose:
+        pbar = tqdm(total=total_source_images, desc="Creating Thumbnails", unit="image")
+
+    for img_path in iterator:
             # Compare the stem of the source image (e.g., "image1" from "image1.jpg")
             # with the stems derived from existing thumbnails.
             if img_path.stem in existing_thumb_stems:
-                print(f"Thumbnail for {img_path.name} already exists (as {img_path.stem}.THUMB.JPG), skipping.")
+                if verbose:
+                    print(f"Thumbnail for {img_path.name} already exists (as {img_path.stem}.THUMB.JPG), skipping.")
                 images_skipped_this_run += 1
-                pbar.update(1)
+                if pbar:
+                    pbar.update(1)
                 continue
 
             try:
@@ -74,7 +81,8 @@ def process_images(
                 if image is None:
                     print(f"Failed to open image {img_path.name}, skipping.")
                     images_skipped_this_run += 1  # Count as skipped if cannot be opened
-                    pbar.update(1)
+                    if pbar:
+                        pbar.update(1)
                     continue
 
                 current_image_format = image.format  # Store format before exif_transpose
@@ -84,7 +92,8 @@ def process_images(
                     if image is None:
                         print(f"Failed to process EXIF data for {img_path.name} and could not re-open, skipping.")
                         images_skipped_this_run += 1
-                        pbar.update(1)
+                        if pbar:
+                            pbar.update(1)
                         continue
 
                 # Use Image.Resampling.LANCZOS for newer Pillow versions
@@ -142,19 +151,26 @@ def process_images(
                 thumb_save_path = thumb_dir / thumb_filename
                 thumb.save(thumb_save_path, "JPEG", quality=90)
                 thumbnails_created_this_run += 1
-                print(f"Created thumbnail: {thumb_save_path}")
-                pbar.update(1)
+                if verbose:
+                    print(f"Created thumbnail: {thumb_save_path}")
+                if pbar:
+                    pbar.update(1)
 
             except FileNotFoundError:
                 print(f"Source image {img_path.name} not found during processing, skipping.")
                 images_skipped_this_run += 1
-                pbar.update(1)
+                if pbar:
+                    pbar.update(1)
             except Exception as e:
                 print(f"Error processing {img_path.name}: {e}")
                 images_skipped_this_run += 1
-                pbar.update(1)
+                if pbar:
+                    pbar.update(1)
 
-    print("\\n--- Summary ---")
+    if pbar:
+        pbar.close()
+
+    print("\n--- Summary ---")
     print(f"Total source images found: {total_source_images}")
     print(f"Thumbnails created in this run: {thumbnails_created_this_run}")
     print(f"Images skipped (already had thumbnail or error): {images_skipped_this_run}")
@@ -235,6 +251,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Recurse into subdirectories when searching for images.",
     )
+    parser.add_argument(
+        "-V",
+        "--verbose",
+        action="store_true",
+        help="Show per-image processing messages instead of a progress bar.",
+    )
     args = parser.parse_args()
 
     process_images(
@@ -244,4 +266,5 @@ if __name__ == "__main__":
         args.thumb_size,
         args.clear,
         args.recurse,
+        args.verbose,
     )
