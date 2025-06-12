@@ -60,7 +60,12 @@ _this is helpful for making meaningful thumbnails later, uses EXIF to unrotate)_
 
 Now, make thumbs for web purposes and eventual display of the images
 <https://gist.github.com/twobob/f5dd8a25195d730801df25bf048c3272>
-_(We chose 240x240 in the end, it scales nicely to 480, which is plenty for previews, not the 128x128 in the title)_  
+_(We chose 240x240 in the end, it scales nicely to 480, which is plenty for previews, not the 128x128 in the title)_
+
+`make_thumbs.py` automates this step using Python and Pillow. Run
+`python make_thumbs.py PATH_TO_IMAGES` to generate oriented thumbnails in a
+`thumbs` subfolder. A `thumbs/overlay/watermark.png` file can be used as an
+optional watermark.
 
 Since this is web facing we are all about size with thousands of files to serve,
 so we crunch the THUMB.JPG files in /thumbs with jpeg-recompress.exe
