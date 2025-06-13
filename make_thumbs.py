@@ -18,6 +18,7 @@ def process_images(
     clear_existing_thumbs: bool,
     recurse: bool = False,
     verbose: bool = False,
+    compress: bool = False,
 ) -> None:
     script_dir = (
         Path(__file__).resolve().parent
@@ -176,28 +177,31 @@ def process_images(
 
             thumb_filename = f"{img_path.stem}.THUMB.JPG"
             thumb_save_path = thumb_dir / thumb_filename
-            with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-                thumb.save(tmp.name, "JPEG", quality=98)
-                tmp_path = Path(tmp.name)
+            if compress:
+                with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+                    thumb.save(tmp.name, "JPEG", quality=98)
+                    tmp_path = Path(tmp.name)
 
-            try:
-                recompress(
-                    tmp_path,
-                    thumb_save_path,
-                    target=0.0,
-                    jpeg_min=40,
-                    jpeg_max=98,
-                    preset="low",
-                    loops=6,
-                    method="smallfry",
-                    progressive=True,
-                    accurate=False,
-                )
-            finally:
                 try:
-                    tmp_path.unlink()
-                except FileNotFoundError:
-                    pass
+                    recompress(
+                        tmp_path,
+                        thumb_save_path,
+                        target=0.0,
+                        jpeg_min=40,
+                        jpeg_max=98,
+                        preset="low",
+                        loops=6,
+                        method="smallfry",
+                        progressive=True,
+                        accurate=False,
+                    )
+                finally:
+                    try:
+                        tmp_path.unlink()
+                    except FileNotFoundError:
+                        pass
+            else:
+                thumb.save(thumb_save_path, "JPEG", quality=98)
             thumbnails_created_this_run += 1
             if verbose:
                 print(f"Created thumbnail: {thumb_save_path}")
@@ -301,7 +305,7 @@ if __name__ == "__main__":
         "-C",
         "--clear",
         action="store_true",
-        help="If set, clears all files from the thumbnail directory before generating new ones.",
+        help="Clear the thumbnail directory before generating new thumbnails.",
     )
     parser.add_argument(
         "--recurse",
@@ -314,6 +318,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Show per-image processing messages instead of a progress bar.",
     )
+    parser.add_argument(
+        "-Z",
+        "--compress",
+        action="store_true",
+        help="Enable jpeg-recompress for thumbnails. Disabled by default.",
+    )
     args = parser.parse_args()
 
     process_images(
@@ -324,4 +334,5 @@ if __name__ == "__main__":
         args.clear,
         args.recurse,
         args.verbose,
+        args.compress,
     )

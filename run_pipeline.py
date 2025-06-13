@@ -54,20 +54,27 @@ def main():
     # Use the helper function for the default value
     default_originals_path = get_default_pictures_folder()
     parser.add_argument(
-        "--originals_dir",
-        type=str,
-        default=str(default_originals_path),
+        "input_path",
+        nargs="?",
         help=f"Directory containing original images. Defaults to OS pictures folder: {default_originals_path}",
     )
 
     parser.add_argument(
-        "--thumbs_dir",
+        "-I",
+        "--input",
+        type=str,
+        help="Directory containing original images (overrides positional PATH).",
+    )
+
+    parser.add_argument(
+        "-O",
+        "--output",
         type=str,
         default=os.path.join("img", "thumbs"),
         help="Directory to store thumbnails.",
     )  # Updated help text
-    # offline_tags.py will use thumbs_dir for its --image_folder and --output_folder (where .txt files are saved)
-    # build_data_json.py will use thumbs_dir for its --tags_dir
+    # offline_tags.py will use the output directory for its --image_folder and --output_folder (where .txt files are saved)
+    # build_data_json.py will use the output directory for its --tags_dir
     parser.add_argument(
         "--output_json",
         type=str,
@@ -93,6 +100,12 @@ def main():
         help="Size of the thumbnails (width and height).",
     )
     parser.add_argument(
+        "-Z",
+        "--compress",
+        action="store_true",
+        help="Enable jpeg-recompress for thumbnails.",
+    )
+    parser.add_argument(
         "-R",
         "--recurse",
         action="store_true",
@@ -107,28 +120,33 @@ def main():
 
     args = parser.parse_args()
 
+    # Determine the raw input argument (from -I/--input or positional PATH)
+    raw_input_arg = args.input if args.input else (args.input_path or str(default_originals_path))
+
     # Fix common Windows quoting mistakes where extra flags become part of the
-    # --originals_dir argument (e.g. `"C:\Users\me\Pictures\" -R -C`).
+    # input path argument (e.g. `"C:\Users\me\Pictures\" -R -C`).
     # This happens when a trailing backslash escapes the closing quote.
     # If such a situation is detected, split the argument and recover the flags.
-    parts = args.originals_dir.split()
+    parts = raw_input_arg.split()
     if len(parts) > 1 and any(p.startswith("-") for p in parts[1:]):
-        args.originals_dir = parts[0].strip('"')
+        raw_input_arg = parts[0].strip('"')
         for flag in parts[1:]:
             if flag in ("--recurse", "-R"):
                 args.recurse = True
             elif flag in ("--clear", "-C", "--clear_thumbs"):
                 args.clear = True
+            elif flag in ("--compress", "-Z"):
+                args.compress = True
             else:
                 print(
-                    f"Warning: Unrecognized token '{flag}' found in --originals_dir argument"
+                    f"Warning: Unrecognized token '{flag}' found in input path argument"
                 )
 
     # Ensure paths are absolute for consistency, especially when calling subprocesses
     # However, the scripts themselves are designed to work with relative paths from project root.
     # Let's keep them relative for now, assuming the wrapper is run from the project root.
-    originals_dir = args.originals_dir
-    thumbs_dir = args.thumbs_dir
+    input_dir = raw_input_arg
+    output_dir = args.output
     output_json = args.output_json
     watermark_path = args.watermark_path
     recurse = args.recurse
@@ -140,11 +158,12 @@ def main():
     # build_data_json_script = os.path.join(script_dir, 'build_data_json.py') # Removed
 
     print(f"Pipeline Configuration:")
-    print(f"  Originals Directory: {originals_dir}")
-    print(f"  Thumbnails Directory: {thumbs_dir}")
+    print(f"  Input Directory: {input_dir}")
+    print(f"  Output Directory: {output_dir}")
     print(f"  Output JSON: {output_json}")
     print(f"  Watermark Path: {watermark_path}")
     print(f"  Clear Thumbnails: {args.clear}")
+    print(f"  Compress Thumbnails: {args.compress}")
     print(f"  Thumbnail Size: {args.thumb_size}")
     print(f"  Recurse into subfolders: {recurse}")
     print(f"  Verbose output: {args.verbose}")
@@ -153,9 +172,9 @@ def main():
     # Prepare arguments for the individual steps
     make_thumbs_args = [
         "--source_dir",
-        originals_dir,
+        input_dir,
         "--thumb_dir",
-        thumbs_dir,
+        output_dir,
         "--overlay_path",
         watermark_path,  # Corrected: was --watermark
         # '--clear', str(args.clear), # Corrected logic below
@@ -164,10 +183,12 @@ def main():
     ]
     if args.clear:  # Correctly append --clear only if True
         make_thumbs_args.append("--clear")
+    if args.compress:
+        make_thumbs_args.append("--compress")
     if recurse:
         make_thumbs_args.append("--recurse")
 
-    offline_tags_args = [originals_dir]
+    offline_tags_args = [input_dir]
     if recurse:
         offline_tags_args.append("--recurse")
     if args.verbose:
@@ -187,7 +208,7 @@ def main():
     # Step 3: Build data.json (This step is now handled by offline_tags.py)
     # print("\\nStep 3: Building data.json...")
     # build_data_json_args = [
-    #     '--tags_dir', thumbs_dir,
+    #     '--tags_dir', output_dir,
     #     '--output_file', output_json
     # ]
     # if not run_script(build_data_json_script, build_data_json_args):
