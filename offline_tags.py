@@ -116,6 +116,8 @@ def process_folder(
     if verbose:
         for img_path in image_paths:
             if add and img_path.name in existing_names:
+                if verbose:
+                    print(f"Skipping {img_path.name} as it already exists in the dataset.")
                 continue
             try:
                 caption = caption_image(img_path, processor, model, device)
