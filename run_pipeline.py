@@ -106,6 +106,12 @@ def main():
         help="Enable jpeg-recompress for thumbnails.",
     )
     parser.add_argument(
+        "-J",
+        "--jpegli",
+        action="store_true",
+        help="Use jpeglib for thumbnail compression.",
+    )
+    parser.add_argument(
         "-R",
         "--recurse",
         action="store_true",
@@ -119,6 +125,9 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if args.compress and args.jpegli:
+        parser.error("-Z/--compress and -J/--jpegli cannot be used together.")
 
     # Determine the raw input argument (from -I/--input or positional PATH)
     raw_input_arg = args.input if args.input else (args.input_path or str(default_originals_path))
@@ -137,6 +146,8 @@ def main():
                 args.clear = True
             elif flag in ("--compress", "-Z"):
                 args.compress = True
+            elif flag in ("--jpegli", "-J"):
+                args.jpegli = True
             else:
                 print(
                     f"Warning: Unrecognized token '{flag}' found in input path argument"
@@ -164,6 +175,7 @@ def main():
     print(f"  Watermark Path: {watermark_path}")
     print(f"  Clear Thumbnails: {args.clear}")
     print(f"  Compress Thumbnails: {args.compress}")
+    print(f"  Jpeglib Compression: {args.jpegli}")
     print(f"  Thumbnail Size: {args.thumb_size}")
     print(f"  Recurse into subfolders: {recurse}")
     print(f"  Verbose output: {args.verbose}")
@@ -185,6 +197,8 @@ def main():
         make_thumbs_args.append("--clear")
     if args.compress:
         make_thumbs_args.append("--compress")
+    if args.jpegli:
+        make_thumbs_args.append("--jpegli")
     if recurse:
         make_thumbs_args.append("--recurse")
 

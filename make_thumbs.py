@@ -4,6 +4,8 @@ import platform
 from pathlib import Path
 from PIL import Image, ImageOps
 import tempfile
+import numpy as np
+import jpeglib
 
 from jpeg_recompress import recompress
 import shutil
@@ -19,11 +21,15 @@ def process_images(
     recurse: bool = False,
     verbose: bool = False,
     compress: bool = False,
+    jpegli: bool = False,
 ) -> None:
     script_dir = (
         Path(__file__).resolve().parent
     )  # Get the directory of the currently running script
     # Use provided thumb_dir and overlay_path directly
+
+    if compress and jpegli:
+        raise ValueError("-Z and -J options are mutually exclusive")
 
     if clear_existing_thumbs:
         if thumb_dir.exists():
@@ -200,6 +206,10 @@ def process_images(
                         tmp_path.unlink()
                     except FileNotFoundError:
                         pass
+            elif jpegli:
+                arr = np.array(thumb.convert("RGB"))
+                jpeg_img = jpeglib.from_spatial(arr)
+                jpeg_img.write_spatial(str(thumb_save_path), qt=90)
             else:
                 thumb.save(thumb_save_path, "JPEG", quality=98)
             thumbnails_created_this_run += 1
@@ -324,6 +334,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Enable jpeg-recompress for thumbnails. Disabled by default.",
     )
+    parser.add_argument(
+        "-J",
+        "--jpegli",
+        action="store_true",
+        help="Use jpeglib for thumbnail compression. Disabled by default.",
+    )
     args = parser.parse_args()
 
     process_images(
@@ -335,4 +351,5 @@ if __name__ == "__main__":
         args.recurse,
         args.verbose,
         args.compress,
+        args.jpegli,
     )

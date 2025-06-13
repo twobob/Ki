@@ -14,6 +14,8 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
 - [spaCy](https://spacy.io/) with the `en_core_web_sm` language model
 - [scikit-image](https://scikit-image.org/) for JPEG recompression metrics
 - `tqdm` for progress bars
+- Optional JPEG compression with `-J/--jpegli` uses the
+  [jpeglib](https://pypi.org/project/jpeglib/) Python package.
 
 Thumbnails are generated at **256×256** pixels by default, so ensure you have enough disk space for the resized copies.
 
@@ -22,7 +24,7 @@ Thumbnails are generated at **256×256** pixels by default, so ensure you have e
 1.  **Install Dependencies:**
     Ensure you have Python installed. Then, install the necessary libraries. While specific versions may vary, you'll typically need:
     ```bash
-    pip install Pillow scikit-image transformers torch torchvision torchaudio spacy tqdm
+    pip install Pillow scikit-image transformers torch torchvision torchaudio spacy tqdm jpeglib
     python -m spacy download en_core_web_sm 
     ```
     (Note: `torch` installation can vary based on your system and CUDA availability. Refer to the official PyTorch website for specific instructions if needed.)
@@ -30,7 +32,7 @@ Thumbnails are generated at **256×256** pixels by default, so ensure you have e
 2.  **Process Your Images:**
     Navigate to the repository directory and run the main pipeline script, providing the path to your image folder:
     ```bash
-    python run_pipeline.py [PATH_TO_YOUR_IMAGES] [-I PATH_TO_YOUR_IMAGES] [-O OUTPUT_DIR] [-R | --recurse] [-C | --clear] [-Z | --compress] [-V | --verbose]
+    python run_pipeline.py [PATH_TO_YOUR_IMAGES] [-I PATH_TO_YOUR_IMAGES] [-O OUTPUT_DIR] [-R | --recurse] [-C | --clear] [-Z | --compress] [-J | --jpegli] [-V | --verbose]
     ```
     **Windows users:** Avoid quoting a path that ends with a single backslash. Either remove the trailing backslash or escape it as `\\` so additional flags are parsed correctly.
 
@@ -39,7 +41,7 @@ Thumbnails are generated at **256×256** pixels by default, so ensure you have e
     *   Generate descriptive tags for each image using a local BLIP-2 model.
     *   Create **256×256** thumbnails for each image and store them in the output directory (default `img/thumbs/`). An optional watermark from `img/overlay/watermark.png` may be applied if `make_thumbs.py` (called by the pipeline) is configured for it.
     *   Optionally clear the contents of the output folder first when using `-C`/`--clear`.
-    *   Enable additional JPEG compression with `-Z`/`--compress`.
+    *   Enable additional JPEG compression with `-Z`/`--compress` or use the `jpeglib` library with `-J`/`--jpegli`. These options are mutually exclusive.
     *   Compile all tag information into `data.json`, which is used by the search interface.
     *   Show per-image progress bars so you know exactly how many files remain.
     *   Use `-V`/`--verbose` to print per-image details instead of progress bars.
