@@ -123,11 +123,25 @@ def main():
         action="store_true",
         help="Show per-image messages and disable progress bars in sub-scripts.",
     )
+    parser.add_argument(
+        "-A",
+        "--add",
+        action="store_true",
+        help="Add images in the folder to existing data.json and thumbnails.",
+    )
+    parser.add_argument(
+        "-D",
+        "--delete",
+        action="store_true",
+        help="Delete records and thumbnails for images in the folder.",
+    )
 
     args = parser.parse_args()
 
     if args.compress and args.jpegli:
         parser.error("-Z/--compress and -J/--jpegli cannot be used together.")
+    if args.add and args.delete:
+        parser.error("-A/--add and -D/--delete cannot be used together.")
 
     # Determine the raw input argument (from -I/--input or positional PATH)
     raw_input_arg = args.input if args.input else (args.input_path or str(default_originals_path))
@@ -148,6 +162,10 @@ def main():
                 args.compress = True
             elif flag in ("--jpegli", "-J"):
                 args.jpegli = True
+            elif flag in ("--add", "-A"):
+                args.add = True
+            elif flag in ("--delete", "-D"):
+                args.delete = True
             else:
                 print(
                     f"Warning: Unrecognized token '{flag}' found in input path argument"
@@ -208,11 +226,17 @@ def main():
     if args.verbose:
         make_thumbs_args.append("--verbose")
         offline_tags_args.append("--verbose")
+    if args.add:
+        offline_tags_args.append("--add")
+    if args.delete:
+        offline_tags_args.append("--delete")
+    offline_tags_args.extend(["--thumb_dir", output_dir, "--data_file", output_json])
 
-    print("\nStep 1: Generating thumbnails...")
-    if not run_script(make_thumbs_script, make_thumbs_args):
-        print("Thumbnail generation failed. Aborting pipeline.")
-        return
+    if not args.delete:
+        print("\nStep 1: Generating thumbnails...")
+        if not run_script(make_thumbs_script, make_thumbs_args):
+            print("Thumbnail generation failed. Aborting pipeline.")
+            return
 
     print("\nStep 2: Generating tags and data.json...")
     if not run_script(offline_tags_script, offline_tags_args):

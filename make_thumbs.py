@@ -6,6 +6,7 @@ from PIL import Image, ImageOps
 import tempfile
 import numpy as np
 import jpeglib
+import hashlib
 
 from jpeg_recompress import recompress
 import shutil
@@ -13,11 +14,13 @@ from tqdm import tqdm
 
 
 def generate_thumb_filename(img_path: Path, source_dir: Path) -> str:
-    """Generate a unique thumbnail filename based on the image's relative path."""
+    """Generate a thumbnail filename using the image path with a short hash."""
     relative = img_path.relative_to(source_dir)
     sanitized_parts = [part.replace(' ', '_').replace('.', '_') for part in relative.parts]
     sanitized = '_'.join(sanitized_parts)
-    return f"{sanitized}.THUMB.JPG"
+    # Include a short hash of the original relative path to avoid collisions
+    path_hash = hashlib.blake2s(str(relative).encode("utf-8"), digest_size=4).hexdigest()
+    return f"{sanitized}_{path_hash}.THUMB.JPG"
 
 
 def process_images(
