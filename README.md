@@ -22,6 +22,7 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
     python run_pipeline.py PATH_TO_YOUR_IMAGES [-R | --recurse] [-C | --clear] [-V | --verbose]
     ```
     **Windows users:** Avoid quoting a path that ends with a single backslash. Either remove the trailing backslash or escape it as `\\` so additional flags are parsed correctly.
+
     This script will:
     *   Scan the `PATH_TO_YOUR_IMAGES` directory for JPG, JPEG, and PNG files. Use `-R`/`--recurse` to include subfolders.
     *   Generate descriptive tags for each image using a local BLIP-2 model.
