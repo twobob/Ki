@@ -39,7 +39,7 @@ Thumbnails are generated at **256×256** pixels by default, so ensure you have e
     This script will:
     *   Scan the `PATH_TO_YOUR_IMAGES` directory (positional or via `-I`/`--input`) for JPG, JPEG, and PNG files. Use `-R`/`--recurse` to include subfolders.
     *   Generate descriptive tags for each image using a local BLIP-2 model.
-    *   Create **256×256** thumbnails for each image and store them in the output directory (default `img/thumbs/`). An optional watermark from `img/overlay/watermark.png` may be applied if `make_thumbs.py` (called by the pipeline) is configured for it.
+    *   Create **256×256** thumbnails for each image and store them in the output directory (default `img/thumbs/`). An optional watermark from `img/overlay/watermark.png` may be applied if `make_thumbs.py` (called by the pipeline) is configured for it. Thumbnail file names now include the relative path to the source image so duplicates across folders or extensions won't overwrite each other.
     *   Optionally clear the contents of the output folder first when using `-C`/`--clear`.
     *   Enable additional JPEG compression with `-Z`/`--compress` or use the `jpeglib` library with `-J`/`--jpegli`. These options are mutually exclusive.
     *   Compile all tag information into `data.json`, which is used by the search interface.
