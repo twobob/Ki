@@ -88,8 +88,8 @@ var clearButton =   $('#clearButton');
 	a.sort(function(a, b){
         return o[b]-o[a];
     })
-	countHolder.sort(function(a, b){
-        return a.amount >b.amount;
+        countHolder.sort(function(a, b){
+        return b.amount - a.amount;
     })
     return returnWithCounts };
  
