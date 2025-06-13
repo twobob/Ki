@@ -6,12 +6,23 @@ __Create a searchable image tag website using Python and Elasticlunr.js.__
 
 This project uses a local BLIP-2 captioning model to automatically tag your images, generates thumbnails, and provides a web interface to search them.
 
+## Requirements
+
+- Python 3.8 or newer
+- [Pillow](https://pypi.org/project/Pillow/) for image processing
+- [Transformers](https://pypi.org/project/transformers/) and PyTorch for the BLIP‑2 model
+- [spaCy](https://spacy.io/) with the `en_core_web_sm` language model
+- [scikit-image](https://scikit-image.org/) for JPEG recompression metrics
+- `tqdm` for progress bars
+
+Thumbnails are generated at **256×256** pixels by default, so ensure you have enough disk space for the resized copies.
+
 ## How to Use
 
 1.  **Install Dependencies:**
     Ensure you have Python installed. Then, install the necessary libraries. While specific versions may vary, you'll typically need:
     ```bash
-    pip install Pillow transformers torch torchvision torchaudio spacy tqdm
+    pip install Pillow scikit-image transformers torch torchvision torchaudio spacy tqdm
     python -m spacy download en_core_web_sm 
     ```
     (Note: `torch` installation can vary based on your system and CUDA availability. Refer to the official PyTorch website for specific instructions if needed.)
@@ -26,7 +37,7 @@ This project uses a local BLIP-2 captioning model to automatically tag your imag
     This script will:
     *   Scan the `PATH_TO_YOUR_IMAGES` directory for JPG, JPEG, and PNG files. Use `-R`/`--recurse` to include subfolders.
     *   Generate descriptive tags for each image using a local BLIP-2 model.
-    *   Create thumbnails for each image and store them in the `img/thumbs/` directory. An optional watermark from `img/overlay/watermark.png` may be applied if `make_thumbs.py` (called by the pipeline) is configured for it.
+    *   Create **256×256** thumbnails for each image and store them in the `img/thumbs/` directory. An optional watermark from `img/overlay/watermark.png` may be applied if `make_thumbs.py` (called by the pipeline) is configured for it.
     *   Optionally clear the contents of `img/thumbs/` first when using `-C`/`--clear`.
     *   Compile all tag information into `data.json`, which is used by the search interface.
     *   Show per-image progress bars so you know exactly how many files remain.

@@ -269,7 +269,7 @@ def get_default_pictures_folder() -> Path:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Create 128x128 thumbnails for images in a folder, with an optional overlay, and save them to a centralized img/thumbs directory relative to the script. Handles JPG, JPEG, and PNG."
+        description="Create 256x256 thumbnails for images in a folder, with an optional overlay, and save them to a centralized img/thumbs directory relative to the script. Handles JPG, JPEG, and PNG."
     )
     script_dir = Path(__file__).resolve().parent
 
