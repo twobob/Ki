@@ -67,10 +67,11 @@ def main():
     args = parser.parse_args()
 
     # Fix common Windows quoting mistakes where extra flags become part of the
-    # --originals_dir argument (e.g. `"C:\Users\me\Pictures\" --recurse`).
+    # --originals_dir argument (e.g. `"C:\Users\me\Pictures\" -R -C`).
+    # This happens when a trailing backslash escapes the closing quote.
     # If such a situation is detected, split the argument and recover the flags.
-    if " --" in args.originals_dir:
-        parts = args.originals_dir.split()
+    parts = args.originals_dir.split()
+    if len(parts) > 1 and any(p.startswith('-') for p in parts[1:]):
         args.originals_dir = parts[0].strip('"')
         for flag in parts[1:]:
             if flag in ("--recurse", "-R"):
