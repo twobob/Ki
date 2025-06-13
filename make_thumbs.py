@@ -12,6 +12,14 @@ import shutil
 from tqdm import tqdm
 
 
+def generate_thumb_filename(img_path: Path, source_dir: Path) -> str:
+    """Generate a unique thumbnail filename based on the image's relative path."""
+    relative = img_path.relative_to(source_dir)
+    sanitized_parts = [part.replace(' ', '_').replace('.', '_') for part in relative.parts]
+    sanitized = '_'.join(sanitized_parts)
+    return f"{sanitized}.THUMB.JPG"
+
+
 def process_images(
     source_dir: Path,
     thumb_dir: Path,
@@ -53,11 +61,7 @@ def process_images(
 
     # Collect stems of original images for which .THUMB.JPG thumbnails already exist.
     # This will be empty if thumbs were just cleared.
-    existing_thumb_stems = {
-        p.stem.replace(".THUMB", "")
-        for p in thumb_dir.glob("*.THUMB.JPG")
-        if ".THUMB" in p.stem
-    }
+    existing_thumb_names = {p.name for p in thumb_dir.glob("*.THUMB.JPG")}
 
     source_image_paths = []
     img_glob_patterns = ["*.[jJ][pP][gG]", "*.[jJ][pP][eE][gG]", "*.[pP][nN][gG]"]
@@ -86,13 +90,13 @@ def process_images(
         pbar = tqdm(total=total_source_images, desc="Creating Thumbnails", unit="image")
 
     for img_path in iterator:
-        # Compare the stem of the source image (e.g., "image1" from "image1.jpg")
-        # with the stems derived from existing thumbnails.
-        if img_path.stem in existing_thumb_stems:
+        thumb_filename = generate_thumb_filename(img_path, source_dir)
+        thumb_save_path = thumb_dir / thumb_filename
+
+        # Skip processing if this thumbnail already exists
+        if thumb_filename in existing_thumb_names:
             if verbose:
-                print(
-                    f"Thumbnail for {img_path.name} already exists (as {img_path.stem}.THUMB.JPG), skipping."
-                )
+                print(f"Thumbnail for {img_path.name} already exists (as {thumb_filename}), skipping.")
             images_skipped_this_run += 1
             if pbar:
                 pbar.update(1)
@@ -181,8 +185,6 @@ def process_images(
             ):  # P is for paletted images like some GIFs/PNGs
                 thumb = thumb.convert("RGB")
 
-            thumb_filename = f"{img_path.stem}.THUMB.JPG"
-            thumb_save_path = thumb_dir / thumb_filename
             if compress:
                 with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
                     thumb.save(tmp.name, "JPEG", quality=98)
@@ -213,6 +215,7 @@ def process_images(
             else:
                 thumb.save(thumb_save_path, "JPEG", quality=98)
             thumbnails_created_this_run += 1
+            existing_thumb_names.add(thumb_filename)
             if verbose:
                 print(f"Created thumbnail: {thumb_save_path}")
             if pbar:

@@ -10,6 +10,14 @@ import json  # Added import
 from tqdm import tqdm
 
 
+def generate_thumb_filename(img_path: Path, base_dir: Path) -> str:
+    """Create thumbnail filename matching make_thumbs.py."""
+    relative = img_path.relative_to(base_dir)
+    sanitized_parts = [part.replace(' ', '_').replace('.', '_') for part in relative.parts]
+    sanitized = '_'.join(sanitized_parts)
+    return f"{sanitized}.THUMB.JPG"
+
+
 def caption_image(image_path, processor, model, device):  # device parameter might become redundant
     image = Image.open(image_path).convert("RGB")
     inputs = processor(images=image, return_tensors="pt")
@@ -42,7 +50,14 @@ def process_folder(folder_path_str: str, recurse: bool = False, verbose: bool = 
 
     # device variable might not be strictly needed if device_map works
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
+    # Try to use the fast image processor to avoid warning about slow processors
+    try:
+        processor = Blip2Processor.from_pretrained(
+            "Salesforce/blip2-opt-2.7b", use_fast=True
+        )
+    except TypeError:
+        # Older versions of transformers may not support the use_fast argument
+        processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
     model = Blip2ForConditionalGeneration.from_pretrained(
         "Salesforce/blip2-opt-2.7b",
         device_map="auto",
@@ -67,7 +82,7 @@ def process_folder(folder_path_str: str, recurse: bool = False, verbose: bool = 
                 tags_list = extract_tags(caption, nlp)
 
                 content_dict = {tag: "1.0" for tag in tags_list}
-                thumb_filename = f"{img_path.stem}.THUMB.JPG"
+                thumb_filename = generate_thumb_filename(img_path, image_folder_path)
                 image_data_entry = {
                     "img": {"filename": img_path.name},
                     "question": {"content": content_dict},
@@ -89,7 +104,7 @@ def process_folder(folder_path_str: str, recurse: bool = False, verbose: bool = 
                     # Create the desired dictionary format for content
                     content_dict = {tag: "1.0" for tag in tags_list}
 
-                    thumb_filename = f"{img_path.stem}.THUMB.JPG"
+                    thumb_filename = generate_thumb_filename(img_path, image_folder_path)
                     image_data_entry = {
                         "img": {"filename": img_path.name},
                         "question": {"content": content_dict},  # Changed "tags" to "content" and used the new dict
