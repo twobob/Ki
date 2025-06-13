@@ -8,8 +8,8 @@ import os
 import platform
 import json  # Added import
 from tqdm import tqdm
-import hashlib
 from typing import Optional
+from thumb_utils import folder_hash
 
 
 def generate_thumb_filename(img_path: Path, base_dir: Path) -> str:
@@ -17,7 +17,7 @@ def generate_thumb_filename(img_path: Path, base_dir: Path) -> str:
     relative = img_path.relative_to(base_dir)
     sanitized_parts = [part.replace(' ', '_').replace('.', '_') for part in relative.parts]
     sanitized = '_'.join(sanitized_parts)
-    path_hash = hashlib.blake2s(str(relative).encode("utf-8"), digest_size=4).hexdigest()
+    path_hash = folder_hash(relative.parent)
     return f"{sanitized}_{path_hash}.THUMB.JPG"
 
 
@@ -232,7 +232,7 @@ def main():
     args = parser.parse_args()
 
     if args.add and args.delete:
-        parser.error("--add and --delete cannot be used together")
+        parser.error("-A/--add and -D/--delete cannot be used together")
 
     if not Path(args.folder).is_dir():
         print(f"Error: Folder does not exist: {args.folder}")
