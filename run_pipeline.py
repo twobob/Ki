@@ -5,6 +5,7 @@ import sys
 from pathlib import Path  # Added import
 import platform  # Added import
 
+
 # Added helper function
 def get_default_pictures_folder() -> Path:
     system = platform.system()
@@ -13,8 +14,8 @@ def get_default_pictures_folder() -> Path:
         user_profile = os.environ.get("USERPROFILE")
         if user_profile:
             return Path(user_profile) / "Pictures"
-        else: # Fallback if USERPROFILE is not set
-            return Path.cwd() # Or some other sensible fallback
+        else:  # Fallback if USERPROFILE is not set
+            return Path.cwd()  # Or some other sensible fallback
     elif system == "Darwin":  # macOS
         return Path.home() / "Pictures"
     elif system == "Linux":
@@ -22,8 +23,9 @@ def get_default_pictures_folder() -> Path:
         if xdg_pictures_dir:
             return Path(xdg_pictures_dir)
         return Path.home() / "Pictures"
-    else: # Fallback for other OSes
+    else:  # Fallback for other OSes
         return Path.cwd()
+
 
 def run_script(script_path, args):
     """Helper function to run a Python script with arguments."""
@@ -39,30 +41,69 @@ def run_script(script_path, args):
     except Exception as e:
         print(f"Failed to run {script_path}: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Run the full image processing pipeline: thumbnails, tags, and JSON generation.")
-    
+    parser = argparse.ArgumentParser(
+        description="Run the full image processing pipeline: thumbnails, tags, and JSON generation."
+    )
+
     # Use the helper function for the default value
     default_originals_path = get_default_pictures_folder()
-    parser.add_argument('--originals_dir', type=str, default=str(default_originals_path), 
-                        help=f'Directory containing original images. Defaults to OS pictures folder: {default_originals_path}')
-    
-    parser.add_argument('--thumbs_dir', type=str, default=os.path.join('img', 'thumbs'), help='Directory to store thumbnails.') # Updated help text
+    parser.add_argument(
+        "--originals_dir",
+        type=str,
+        default=str(default_originals_path),
+        help=f"Directory containing original images. Defaults to OS pictures folder: {default_originals_path}",
+    )
+
+    parser.add_argument(
+        "--thumbs_dir",
+        type=str,
+        default=os.path.join("img", "thumbs"),
+        help="Directory to store thumbnails.",
+    )  # Updated help text
     # offline_tags.py will use thumbs_dir for its --image_folder and --output_folder (where .txt files are saved)
     # build_data_json.py will use thumbs_dir for its --tags_dir
-    parser.add_argument('--output_json', type=str, default='data.json', help='Path for the final data.json file (Note: offline_tags.py currently hardcodes output to data.json in script root).') # Updated help text
-    parser.add_argument('--watermark_path', type=str, default=os.path.join('img', 'overlay', 'watermark.png'), help='Path to the watermark image.')
-    parser.add_argument('-C', '--clear', action='store_true',
-                        help='Clear the thumbnails directory before generating new thumbnails.')
-    parser.add_argument('--thumb_size', type=int, default=128,
-                        help='Size of the thumbnails (width and height).')
-    parser.add_argument('-R', '--recurse', action='store_true',
-                        help='Recurse into subdirectories when processing images.')
-    parser.add_argument('-V', '--verbose', action='store_true',
-                        help='Show per-image messages and disable progress bars in sub-scripts.')
+    parser.add_argument(
+        "--output_json",
+        type=str,
+        default="data.json",
+        help="Path for the final data.json file (Note: offline_tags.py currently hardcodes output to data.json in script root).",
+    )  # Updated help text
+    parser.add_argument(
+        "--watermark_path",
+        type=str,
+        default=os.path.join("img", "overlay", "watermark.png"),
+        help="Path to the watermark image.",
+    )
+    parser.add_argument(
+        "-C",
+        "--clear",
+        action="store_true",
+        help="Clear the thumbnails directory before generating new thumbnails.",
+    )
+    parser.add_argument(
+        "--thumb_size",
+        type=int,
+        default=256,
+        help="Size of the thumbnails (width and height).",
+    )
+    parser.add_argument(
+        "-R",
+        "--recurse",
+        action="store_true",
+        help="Recurse into subdirectories when processing images.",
+    )
+    parser.add_argument(
+        "-V",
+        "--verbose",
+        action="store_true",
+        help="Show per-image messages and disable progress bars in sub-scripts.",
+    )
 
     args = parser.parse_args()
 
@@ -71,7 +112,7 @@ def main():
     # This happens when a trailing backslash escapes the closing quote.
     # If such a situation is detected, split the argument and recover the flags.
     parts = args.originals_dir.split()
-    if len(parts) > 1 and any(p.startswith('-') for p in parts[1:]):
+    if len(parts) > 1 and any(p.startswith("-") for p in parts[1:]):
         args.originals_dir = parts[0].strip('"')
         for flag in parts[1:]:
             if flag in ("--recurse", "-R"):
@@ -79,7 +120,9 @@ def main():
             elif flag in ("--clear", "-C", "--clear_thumbs"):
                 args.clear = True
             else:
-                print(f"Warning: Unrecognized token '{flag}' found in --originals_dir argument")
+                print(
+                    f"Warning: Unrecognized token '{flag}' found in --originals_dir argument"
+                )
 
     # Ensure paths are absolute for consistency, especially when calling subprocesses
     # However, the scripts themselves are designed to work with relative paths from project root.
@@ -92,8 +135,8 @@ def main():
 
     # Construct script paths relative to this script's location (project root)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    make_thumbs_script = os.path.join(script_dir, 'make_thumbs.py')
-    offline_tags_script = os.path.join(script_dir, 'offline_tags.py')
+    make_thumbs_script = os.path.join(script_dir, "make_thumbs.py")
+    offline_tags_script = os.path.join(script_dir, "offline_tags.py")
     # build_data_json_script = os.path.join(script_dir, 'build_data_json.py') # Removed
 
     print(f"Pipeline Configuration:")
@@ -109,23 +152,27 @@ def main():
 
     # Prepare arguments for the individual steps
     make_thumbs_args = [
-        '--source_dir', originals_dir,
-        '--thumb_dir', thumbs_dir,
-        '--overlay_path', watermark_path, # Corrected: was --watermark
+        "--source_dir",
+        originals_dir,
+        "--thumb_dir",
+        thumbs_dir,
+        "--overlay_path",
+        watermark_path,  # Corrected: was --watermark
         # '--clear', str(args.clear), # Corrected logic below
-        '--thumb_size', str(args.thumb_size)
+        "--thumb_size",
+        str(args.thumb_size),
     ]
     if args.clear:  # Correctly append --clear only if True
-        make_thumbs_args.append('--clear')
+        make_thumbs_args.append("--clear")
     if recurse:
-        make_thumbs_args.append('--recurse')
+        make_thumbs_args.append("--recurse")
 
     offline_tags_args = [originals_dir]
     if recurse:
-        offline_tags_args.append('--recurse')
+        offline_tags_args.append("--recurse")
     if args.verbose:
-        make_thumbs_args.append('--verbose')
-        offline_tags_args.append('--verbose')
+        make_thumbs_args.append("--verbose")
+        offline_tags_args.append("--verbose")
 
     print("\nStep 1: Generating thumbnails...")
     if not run_script(make_thumbs_script, make_thumbs_args):
@@ -140,7 +187,7 @@ def main():
     # Step 3: Build data.json (This step is now handled by offline_tags.py)
     # print("\\nStep 3: Building data.json...")
     # build_data_json_args = [
-    #     '--tags_dir', thumbs_dir, 
+    #     '--tags_dir', thumbs_dir,
     #     '--output_file', output_json
     # ]
     # if not run_script(build_data_json_script, build_data_json_args):
@@ -149,5 +196,6 @@ def main():
 
     print("\nPipeline completed successfully!")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
