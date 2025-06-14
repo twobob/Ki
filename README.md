@@ -32,7 +32,7 @@ Thumbnails are generated at **256×256** pixels by default, so ensure you have e
 2.  **Process Your Images:**
     Navigate to the repository directory and run the main pipeline script, providing the path to your image folder:
     ```bash
-    python run_pipeline.py [PATH_TO_YOUR_IMAGES] [-I PATH_TO_YOUR_IMAGES] [-O OUTPUT_DIR] [-R | --recurse] [-C | --clear] [-Z | --compress] [-J | --jpegli] [-A | --add] [-D | --delete] [-V | --verbose]
+    python run_pipeline.py [PATH_TO_YOUR_IMAGES] [-I PATH_TO_YOUR_IMAGES] [-O OUTPUT_DIR] [-R | --recurse] [-C | --clear] [-Z | --compress] [-J | --jpegli] [-A | --add] [-D | --delete] [-V | --verbose] [-S [PORT]]
     ```
     **Windows users:** Avoid quoting a path that ends with a single backslash. Either remove the trailing backslash or escape it as `\\` so additional flags are parsed correctly.
 
@@ -46,9 +46,10 @@ Thumbnails are generated at **256×256** pixels by default, so ensure you have e
     *   Show per-image progress bars so you know exactly how many files remain.
     *   Use `-V`/`--verbose` to print per-image details instead of progress bars.
     *   Use `-A`/`--add` to append new images without rebuilding existing entries, or `-D`/`--delete` to remove records and thumbnails for images in the folder.
+    *   Use `-S [PORT]` to automatically launch the local server after processing. Omit `PORT` to use `serve.py`'s default.
 
 3.  **Run the Web Server:**
-    Once your images are processed and `data.json` is generated, start the local web server:
+    If you didn't use `-S` during the pipeline step, start the local web server manually:
     ```bash
     python serve.py
     ```
