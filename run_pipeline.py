@@ -53,10 +53,17 @@ def main():
 
     # Use the helper function for the default value
     default_originals_path = get_default_pictures_folder()
+    if platform.system() == "Windows":
+        help_text_default_folder = "%USERPROFILE%\\Pictures"
+    else:
+        help_text_default_folder = "~/Pictures"
     parser.add_argument(
         "input_path",
         nargs="?",
-        help=f"Directory containing original images. Defaults to OS pictures folder: {default_originals_path}",
+        help=(
+            "Directory containing original images. "
+            f"Defaults to OS pictures folder: {help_text_default_folder}"
+        ),
     )
 
     parser.add_argument(
@@ -161,8 +168,10 @@ def main():
     raw_input_arg = args.input if args.input else (args.input_path or str(default_originals_path))
 
     # Fix common Windows quoting mistakes where extra flags become part of the
-    # input path argument (e.g. `"C:\Users\me\Pictures\" -R -C`).
-    # This happens when a trailing backslash escapes the closing quote.
+    # input path argument (e.g. `%USERPROFILE%\Pictures` -R -C). On Linux/macOS
+    # the equivalent would be `~/Pictures`.
+    # This happens when a trailing backslash escapes the closing quote on
+    # Windows.
     # If such a situation is detected, split the argument and recover the flags.
     parts = raw_input_arg.split()
     if len(parts) > 1 and any(p.startswith("-") for p in parts[1:]):

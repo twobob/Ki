@@ -293,11 +293,19 @@ if __name__ == "__main__":
     )
     script_dir = Path(__file__).resolve().parent
 
+    default_pictures_folder = get_default_pictures_folder()
+    if platform.system() == "Windows":
+        help_text_default_folder = "%USERPROFILE%\\Pictures"
+    else:
+        help_text_default_folder = "~/Pictures"
     parser.add_argument(
         "--source_dir",
         type=Path,
-        default=get_default_pictures_folder(),
-        help=f"Directory containing the original images. Defaults to your OS's default pictures folder ({get_default_pictures_folder()}).",
+        default=default_pictures_folder,
+        help=(
+            "Directory containing the original images. "
+            f"Defaults to your OS's default pictures folder ({help_text_default_folder})."
+        ),
     )
     parser.add_argument(
         "--thumb_dir",
