@@ -31,6 +31,7 @@ Thumbnails are generated at **256×256** pixels by default, so ensure you have e
 
 2.  **Process Your Images:**
     Navigate to the repository directory and run the main pipeline script, providing the path to your image folder:
+    Typical locations are `%USERPROFILE%\Pictures` on Windows or `~/Pictures` on Linux/macOS.
     ```bash
     python run_pipeline.py [PATH_TO_YOUR_IMAGES] [-I PATH_TO_YOUR_IMAGES] [-O OUTPUT_DIR] [-R | --recurse] [-C | --clear] [-Z | --compress] [-J | --jpegli] [-A | --add] [-D | --delete] [-V | --verbose] [-S [PORT]]
     ```
