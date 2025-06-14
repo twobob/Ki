@@ -96,29 +96,33 @@ var clearButton =   $('#clearButton');
  // prep the questions and tag counts
  var jsonData = JSON.parse(data);
  var rawQuestions = jsonData.questions;
- var tagCountsData = jsonData.tag_counts;
 
- var fulllist = [];
- var shortlist;
- countHolder = [];
- if (tagCountsData) {
-     for (var tag in tagCountsData) {
-         countHolder.push({ name: tag, amount: tagCountsData[tag] });
-     }
-     countHolder.sort(function(a, b) { return b.amount - a.amount; });
-     shortlist = countHolder.map(function(item) { return item.name; });
- } else {
-     rawQuestions.map(function (raw) {
-         for (thing in raw.question.content) {
-             fulllist[fulllist.length] = thing;
-         }
-     });
-     shortlist = fulllist.byCount();
+ // Always derive tag counts from the question data. This guarantees
+ // the UI reflects the actual number of images for each tag even if
+ // the stored tag_counts field is missing or stale.
+  // Compute tag counts in a single linear pass. Even with tens of thousands
+  // of images this loop completes quickly (~milliseconds) and avoids relying
+  // on potentially stale "tag_counts" entries in the JSON.
+  var tagCountsData = {};
+  for (var i = 0; i < rawQuestions.length; i++) {
+      var content = rawQuestions[i].question.content;
+      for (var tag in content) {
+          tagCountsData[tag] = (tagCountsData[tag] || 0) + 1;
+      }
+  }
+
+ var countHolder = [];
+ for (var tag in tagCountsData) {
+     countHolder.push({ name: tag, amount: tagCountsData[tag] });
  }
-    dict = {};
-    countHolder.forEach(function(x) {
-        dict[x.name] = x.amount;
-    });
+ countHolder.sort(function(a, b) { return b.amount - a.amount; });
+
+ var shortlist = countHolder.map(function(item) { return item.name; });
+
+ var dict = {};
+ countHolder.forEach(function(x) {
+     dict[x.name] = x.amount;
+ });
  
  
   const SIDEBAR_TITLE_LENGTH = 15;
