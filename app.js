@@ -93,22 +93,32 @@ var clearButton =   $('#clearButton');
     })
     return returnWithCounts };
  
- // prep the questions
+ // prep the questions and tag counts
+ var jsonData = JSON.parse(data);
+ var rawQuestions = jsonData.questions;
+ var tagCountsData = jsonData.tag_counts;
+
  var fulllist = [];
- var rawQuestions = JSON.parse(data).questions;
- 
- rawQuestions.map(function (raw) {
- for (thing in raw.question.content )
-	{
-	fulllist[fulllist.length]= thing; //{'x': thing};
-	}
-})
-  
- var shortlist = fulllist.byCount();
-	dict = {}
-	countHolder.forEach(function(x) {
-    dict[x.name] = x.amount
-	})
+ var shortlist;
+ countHolder = [];
+ if (tagCountsData) {
+     for (var tag in tagCountsData) {
+         countHolder.push({ name: tag, amount: tagCountsData[tag] });
+     }
+     countHolder.sort(function(a, b) { return b.amount - a.amount; });
+     shortlist = countHolder.map(function(item) { return item.name; });
+ } else {
+     rawQuestions.map(function (raw) {
+         for (thing in raw.question.content) {
+             fulllist[fulllist.length] = thing;
+         }
+     });
+     shortlist = fulllist.byCount();
+ }
+    dict = {};
+    countHolder.forEach(function(x) {
+        dict[x.name] = x.amount;
+    });
  
  
   const SIDEBAR_TITLE_LENGTH = 15;

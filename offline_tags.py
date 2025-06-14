@@ -100,14 +100,24 @@ def process_folder(
     # Handle deletion before any captioning work
     if delete:
         names_to_delete = {p.name for p in image_paths}
-        remaining = [e for e in existing_data if e.get("img", {}).get("filename") not in names_to_delete]
+        remaining = [
+            e
+            for e in existing_data
+            if e.get("img", {}).get("filename") not in names_to_delete
+        ]
         for img_path in image_paths:
             thumb_name = generate_thumb_filename(img_path, image_folder_path)
             thumb_path = thumb_directory / thumb_name
             if thumb_path.exists():
                 thumb_path.unlink()
+
+        tag_counts = {}
+        for entry in remaining:
+            for tag in entry.get("question", {}).get("content", {}):
+                tag_counts[tag] = tag_counts.get(tag, 0) + 1
+
         with open(output_json_path, "w", encoding="utf-8") as f_json:
-            json.dump({"questions": remaining}, f_json, indent=4)
+            json.dump({"questions": remaining, "tag_counts": tag_counts}, f_json, indent=4)
         print(f"Updated {output_json_path}")
         return
 
@@ -160,9 +170,16 @@ def process_folder(
                     pbar.update(1)
 
     if add:
-        final_output_data = {"questions": existing_data + all_questions_data}
+        combined = existing_data + all_questions_data
     else:
-        final_output_data = {"questions": all_questions_data}
+        combined = all_questions_data
+
+    tag_counts = {}
+    for entry in combined:
+        for tag in entry.get("question", {}).get("content", {}):
+            tag_counts[tag] = tag_counts.get(tag, 0) + 1
+
+    final_output_data = {"questions": combined, "tag_counts": tag_counts}
 
     with open(output_json_path, "w", encoding="utf-8") as f_json:
         json.dump(final_output_data, f_json, indent=4)

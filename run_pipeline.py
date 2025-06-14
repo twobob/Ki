@@ -91,7 +91,10 @@ def main():
         "-C",
         "--clear",
         action="store_true",
-        help="Clear the thumbnails directory before generating new thumbnails.",
+        help=(
+            "Clear the thumbnails directory before generating new thumbnails. "
+            "Cannot be used with -A/--add or -D/--delete."
+        ),
     )
     parser.add_argument(
         "--thumb_size",
@@ -99,13 +102,14 @@ def main():
         default=256,
         help="Size of the thumbnails (width and height).",
     )
-    parser.add_argument(
+    compression_group = parser.add_mutually_exclusive_group()
+    compression_group.add_argument(
         "-Z",
         "--compress",
         action="store_true",
         help="Enable jpeg-recompress for thumbnails.",
     )
-    parser.add_argument(
+    compression_group.add_argument(
         "-J",
         "--jpegli",
         action="store_true",
@@ -123,13 +127,14 @@ def main():
         action="store_true",
         help="Show per-image messages and disable progress bars in sub-scripts.",
     )
-    parser.add_argument(
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
         "-A",
         "--add",
         action="store_true",
         help="Add images in the folder to existing data.json and thumbnails.",
     )
-    parser.add_argument(
+    mode_group.add_argument(
         "-D",
         "--delete",
         action="store_true",
@@ -138,10 +143,8 @@ def main():
 
     args = parser.parse_args()
 
-    if args.compress and args.jpegli:
-        parser.error("-Z/--compress and -J/--jpegli cannot be used together.")
-    if args.add and args.delete:
-        parser.error("-A/--add and -D/--delete cannot be used together.")
+    if args.clear and (args.add or args.delete):
+        parser.error("-C/--clear cannot be used with -A/--add or -D/--delete.")
 
     # Determine the raw input argument (from -I/--input or positional PATH)
     raw_input_arg = args.input if args.input else (args.input_path or str(default_originals_path))
