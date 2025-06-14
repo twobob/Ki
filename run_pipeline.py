@@ -140,6 +140,17 @@ def main():
         action="store_true",
         help="Delete records and thumbnails for images in the folder.",
     )
+    parser.add_argument(
+        "-S",
+        "--serve",
+        nargs="?",
+        const="",
+        metavar="PORT",
+        help=(
+            "Start serve.py after the pipeline finishes. Optionally provide a PORT; "
+            "if omitted, serve.py's default port is used."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -187,6 +198,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     make_thumbs_script = os.path.join(script_dir, "make_thumbs.py")
     offline_tags_script = os.path.join(script_dir, "offline_tags.py")
+    serve_script = os.path.join(script_dir, "serve.py")
     # build_data_json_script = os.path.join(script_dir, 'build_data_json.py') # Removed
 
     print(f"Pipeline Configuration:")
@@ -257,6 +269,14 @@ def main():
     #     return
 
     print("\nPipeline completed successfully!")
+
+    if args.serve is not None:
+        print("\nLaunching local server...")
+        serve_args = []
+        if args.serve:
+            serve_args.append(args.serve)
+        if not run_script(serve_script, serve_args):
+            print("Failed to start server.")
 
 
 if __name__ == "__main__":
