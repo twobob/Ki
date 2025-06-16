@@ -13,13 +13,13 @@ import shutil
 from tqdm import tqdm
 
 
-def generate_thumb_filename(img_path: Path, source_dir: Path) -> str:
-    """Generate a thumbnail filename using the image path with a short hash."""
-    relative = img_path.relative_to(source_dir)
+def generate_thumb_filename(img_path: Path) -> str:
+    """Generate a thumbnail filename using the full image path with a short hash."""
+    absolute = img_path.resolve()
+    relative = absolute.relative_to(absolute.anchor)
     sanitized_parts = [part.replace(' ', '_').replace('.', '_') for part in relative.parts]
     sanitized = '_'.join(sanitized_parts)
-    # Include a short hash of the directory path to avoid collisions
-    path_hash = folder_hash(relative.parent)
+    path_hash = folder_hash(absolute.parent)
     return f"{sanitized}_{path_hash}.THUMB.JPG"
 
 
@@ -93,7 +93,7 @@ def process_images(
         pbar = tqdm(total=total_source_images, desc="Creating Thumbnails", unit="image")
 
     for img_path in iterator:
-        thumb_filename = generate_thumb_filename(img_path, source_dir)
+        thumb_filename = generate_thumb_filename(img_path)
         thumb_save_path = thumb_dir / thumb_filename
 
         # Skip processing if this thumbnail already exists
