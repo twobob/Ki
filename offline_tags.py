@@ -12,12 +12,13 @@ from typing import Optional
 from thumb_utils import folder_hash
 
 
-def generate_thumb_filename(img_path: Path, base_dir: Path) -> str:
+def generate_thumb_filename(img_path: Path) -> str:
     """Create thumbnail filename matching make_thumbs.py with hash."""
-    relative = img_path.relative_to(base_dir)
+    absolute = img_path.resolve()
+    relative = absolute.relative_to(absolute.anchor)
     sanitized_parts = [part.replace(' ', '_').replace('.', '_') for part in relative.parts]
     sanitized = '_'.join(sanitized_parts)
-    path_hash = folder_hash(relative.parent)
+    path_hash = folder_hash(absolute.parent)
     return f"{sanitized}_{path_hash}.THUMB.JPG"
 
 
@@ -106,7 +107,7 @@ def process_folder(
             if e.get("img", {}).get("filename") not in names_to_delete
         ]
         for img_path in image_paths:
-            thumb_name = generate_thumb_filename(img_path, image_folder_path)
+            thumb_name = generate_thumb_filename(img_path)
             thumb_path = thumb_directory / thumb_name
             if thumb_path.exists():
                 thumb_path.unlink()
@@ -134,7 +135,7 @@ def process_folder(
                 tags_list = extract_tags(caption, nlp)
 
                 content_dict = {tag: "1.0" for tag in tags_list}
-                thumb_filename = generate_thumb_filename(img_path, image_folder_path)
+                thumb_filename = generate_thumb_filename(img_path)
                 image_data_entry = {
                     "img": {"filename": img_path.name},
                     "question": {"content": content_dict},
@@ -157,7 +158,7 @@ def process_folder(
 
                     content_dict = {tag: "1.0" for tag in tags_list}
 
-                    thumb_filename = generate_thumb_filename(img_path, image_folder_path)
+                    thumb_filename = generate_thumb_filename(img_path)
                     image_data_entry = {
                         "img": {"filename": img_path.name},
                         "question": {"content": content_dict},
