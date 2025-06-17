@@ -176,3 +176,11 @@ pre .comment {
 .autocomplete-items li:hover {
   background-color: #eee;
 }
+
+#search-container {
+  z-index: 3000;
+}
+
+#question-view-container {
+  z-index: 1000;
+}
