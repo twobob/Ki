@@ -115,9 +115,12 @@ var clearButton =   $('#clearButton');
  for (var tag in tagCountsData) {
      countHolder.push({ name: tag, amount: tagCountsData[tag] });
  }
- countHolder.sort(function(a, b) { return b.amount - a.amount; });
+countHolder.sort(function(a, b) { return b.amount - a.amount; });
 
- var shortlist = countHolder.map(function(item) { return item.name; });
+// Keep a simple array of tag names for the autocomplete feature
+var tagNames = countHolder.map(function(item) { return item.name; });
+
+var shortlist = tagNames;
 
  var dict = {};
  countHolder.forEach(function(x) {
@@ -279,6 +282,72 @@ function dowork(results, totalResultsToRender, term) {
   }
   
   window.searchTerm = searchTerm;   // Make it available via the javascript window object rather than require.js
+
+  // ---------------- Autocomplete logic ----------------
+  var activeIndex = -1;
+  var autocompleteContainer = $('#autocomplete-container');
+
+  function renderAutocomplete(list) {
+    autocompleteContainer.empty();
+    if (!list.length) return;
+    var ul = $('<ul class="autocomplete-items"></ul>');
+    list.forEach(function(word) {
+      ul.append($('<li></li>').text(word).attr('data-word', word));
+    });
+    autocompleteContainer.append(ul);
+  }
+
+  function updateAutocomplete(val) {
+    var lower = val.toLowerCase();
+    var matches = tagNames.filter(function(w) {
+      return w.toLowerCase().indexOf(lower) === 0;
+    });
+    renderAutocomplete(matches.slice(0, 10));
+    activeIndex = -1;
+  }
+
+  $('#inputSuccess1').on('input', function () {
+    updateAutocomplete(this.value);
+  });
+
+  $('#autocomplete-container').on('mousedown', 'li', function (e) {
+    e.preventDefault();
+    var val = $(this).data('word');
+    $('#inputSuccess1').val(val);
+    autocompleteContainer.empty();
+    searchTerm(val);
+  });
+
+  function setActive(items) {
+    items.removeClass('autocomplete-active');
+    if (activeIndex >= 0 && activeIndex < items.length) {
+      $(items[activeIndex]).addClass('autocomplete-active');
+    }
+  }
+
+  $('#inputSuccess1').on('keydown', function (e) {
+    var items = autocompleteContainer.find('li');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (activeIndex < items.length - 1) { activeIndex++; }
+      setActive(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (activeIndex > 0) { activeIndex--; }
+      setActive(items);
+    } else if (e.key === 'Enter') {
+      if (activeIndex >= 0 && activeIndex < items.length) {
+        e.preventDefault();
+        $(items[activeIndex]).trigger('mousedown');
+      }
+    }
+  });
+
+  $(document).on('click', function (e) {
+    if (!$(e.target).closest('#autocomplete-container, #inputSuccess1').length) {
+      autocompleteContainer.empty();
+    }
+  });
   
   // on key up search on 3 letters or more.
   $('input').bind('keyup', debounce(function () {

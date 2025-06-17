@@ -146,3 +146,32 @@ pre .comment {
   color: grey;
   font-style: italic;
 }
+
+#autocomplete-container {
+  position: relative;
+}
+
+.autocomplete-items {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border: 1px solid #ced4da;
+  background: white;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.autocomplete-items li {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.autocomplete-items li.autocomplete-active,
+.autocomplete-items li:hover {
+  background-color: #eee;
+}
